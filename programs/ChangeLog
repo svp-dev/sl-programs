@@ -1,5 +1,12 @@
 2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix some benchmarks.
+
+	* benchmarks/lib/benchmark.c (run_benchmark): Initialize the
+	`place' field for benchmarks that use the number of cores.
+
+2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix the version numbering.
 
 	* configure.ac: Use the new script `git-version-gen' also used by

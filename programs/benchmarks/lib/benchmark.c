@@ -13,6 +13,7 @@
 //
 
 #include <svp/delegate.h>
+#include <svp/sep.h>
 #include <svp/perf.h>
 #include <svp/slr.h>
 #include <svp/testoutput.h>
@@ -38,6 +39,7 @@ slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
 
 
 extern sl_place_t __main_place_id;
+extern struct placeinfo *__main_placeinfo;
 
 sl_decl(t_main, void);
 
@@ -107,6 +109,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   struct benchmark_state bs;
   bs.wl = &wl;
   bs.data = 0;
+#if SVP_HAS_SEP
+  bs.place = __main_placeinfo;
+#endif
   size_t p = 0;
 
   puts("# 1. initialize...");
