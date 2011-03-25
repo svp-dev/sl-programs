@@ -19,8 +19,8 @@ else
   AUTORECONF=autoreconf
 fi
 
-if test -x ../slc/build-aux/sl-init-autoconf; then
-   ../slc/build-aux/sl-init-autoconf
+if test -x ../../sys/slc/build-aux/sl-init-autoconf; then
+   ../../sys/slc/build-aux/sl-init-autoconf
 else
    sl-init-autoconf
 fi

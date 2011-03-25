@@ -1,5 +1,16 @@
 2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix the version numbering.
+
+	* configure.ac: Use the new script `git-version-gen' also used by
+	sl-core.
+	
+	* build-aux/package-version: Remove, as this is now obsolete.
+
+	* bootstrap: Fix the relative path to the `slc' sources.
+
+2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Allow `-n' for benchmarks.
 
 	* benchmarks/lib/benchmark.c: Do not self allocate a fresh

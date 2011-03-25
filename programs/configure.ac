@@ -13,8 +13,7 @@
 
 AC_PREREQ([2.61])
 AC_INIT([sl-programs], 
-        m4_esyscmd([(pre=; if test -d ../.git -a ! -d .git; then pre=$PWD/; cd ..; fi; \
-                    ${pre}build-aux/version-gen ${pre}build-aux/tarball-version ${pre}build-aux/package-version)]), 
+        m4_esyscmd([build-aux/git-version-gen build-aux/tarball-version s/sl-programs-/v/ sl-programs]), 
         [sl-users@svp-home.org])
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -29,7 +28,6 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AC_CHECK_PROGS([BASH], [bash sh])
 
-SLC_PATH_LOCAL([../slc])
 AC_WITH_SLC
 AC_SLC_TESTS
 
