@@ -112,7 +112,7 @@ DOBENCH_DEF = do_bench() { \
 	  dores=`if test $$6 = 1; then echo 1; fi`; \
 	  rm -f "$$target" "$$target".err; \
 	  set +e; TIMEOUT=$${TIMEOUT:-10800} $(TMO) $(SLR) "$$prog" -rf "$$fdata" \
-	    L= sep_dump= results=$$dores format=1 ncores=$$ncores \
+	    L= sep_dump= results=$$dores format=1 -n $$ncores \
 	    -b "$$binfmt" -t -p "$$target".work >>"$$target".err 2>&1; \
 	  ecode=$$?; set -e; if test $$ecode != 0; then \
 	    if test -n "$$dores"; then \

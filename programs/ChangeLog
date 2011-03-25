@@ -1,3 +1,14 @@
+2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Allow `-n' for benchmarks.
+
+	* benchmarks/lib/benchmark.c: Do not self allocate a fresh
+	place. Instead overload the `main' function and rely on
+	`__main_place_id' to be allocated by the root SEP initially based
+	on `-n'.
+
+	* build-aux/benchmarks.mk: Use `-n' instead of `ncores='.
+
 2011-03-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Fix the livermore loop 21.

@@ -1,7 +1,7 @@
 //
 // benchmark.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009,2010,2011 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@
 // `COPYING' file in the root directory.
 //
 
+#include <svp/delegate.h>
 #include <svp/perf.h>
 #include <svp/slr.h>
 #include <svp/testoutput.h>
@@ -30,11 +31,21 @@
 #endif
 #define putc(C) output_char((C), 1)
 
-slr_decl(slr_var(unsigned, ncores, "number of cores (default 1)"),
-	 slr_var(unsigned, L, "number of outer iterations (default 3)"),
+slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
 	 slr_var(int, format, "format for benchmark results (default=0=fibre, 1=raw)"),
 	 slr_var(int, results, "output computation results (default 0=no)"),
 	 slr_var(int, sep_dump, "output initial place configuration (default 0=no)"));
+
+
+extern sl_place_t __main_place_id;
+
+sl_decl(t_main, void);
+
+int main(void)
+{
+    sl_proccall(t_main);
+    return 0; 
+}
 
 sl_def(do_work, sl__static,
        sl_glparm(size_t, p),
@@ -56,13 +67,11 @@ sl_enddef
 sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
 {
   /* configuration from environment */
-  unsigned ncores = 1;
   unsigned L = 3;
   int results = 0;
   int format = 0;
   int sep_dump = 0;
 
-  if (slr_len(ncores)) ncores = slr_get(ncores)[0];
   if (slr_len(L)) L = slr_get(L)[0];
   if (slr_len(results)) results = slr_get(results)[0];
   if (slr_len(format)) format = slr_get(format)[0];
@@ -98,42 +107,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   struct benchmark_state bs;
   bs.wl = &wl;
   bs.data = 0;
-  sl_place_t pid;
   size_t p = 0;
 
-  printf("# 1. initial place allocation (ncores=%u)...", ncores);
-#if SVP_HAS_SEP
-  {
-    mtperf_start_interval(intervals, p, -1, "sep_alloc");
-    sl_create(,root_sep->sep_place,,,,,sl__exclusive, *root_sep->sep_alloc,
-	      sl_glarg(struct SEP*, , root_sep),
-	      sl_glarg(unsigned long, , SAL_EXACT|ncores),
-	      sl_sharg(struct placeinfo*, p, 0));
-    sl_sync();
-    mtperf_finish_interval(intervals, p++);
-
-    if (!sl_geta(p)) {
-      output_string("Place allocation failed!\n", 2);
-      abort();
-    }
-    bs.place = sl_geta(p);
-    pid = bs.place->pid;
-
-    if (sep_dump) {
-      puts("done\n# SEP status dump after initial allocation:\n");
-      sl_create(,root_sep->sep_place,,,,,, *root_sep->sep_dump_info,
-		sl_glarg(struct SEP*, , root_sep));
-      sl_sync();
-    }
-  }
-  puts("ok\n");
-#else
-  puts("no SEP, using default place\n");
-  pid = PLACE_DEFAULT;
-  mtperf_empty_interval(intervals, p++, -1, "sep_alloc");
-#endif
-
-  puts("# 2. initialize...");
+  puts("# 1. initialize...");
   if (initialize) {
     mtperf_start_interval(intervals, p, -1, "initialize");
     sl_proccall(*initialize, sl_glarg(struct benchmark_state*, , &bs));
@@ -146,7 +122,7 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
 
   int i;
   for (i = 0; i < L; ++i) {
-    printf("# 3.%u prepare...", i+1);
+    printf("# 2.%u prepare...", i+1);
     if (prepare) {
       mtperf_start_interval(intervals, p, i, "prepare");
       sl_proccall(*prepare, sl_glarg(struct benchmark_state*, , &bs));
@@ -160,7 +136,7 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
     printf("# 3.%u work...", i+1);
     wl.current_interval = p+1;
     wl.current_iter = i;
-    sl_create(, pid,,,,,, do_work, 
+    sl_create(, __main_place_id,,,,,, do_work, 
               sl_glarg(size_t, , p),
               sl_glarg(int, , i),
               sl_glarg(struct benchmark*, , b),
