@@ -1,5 +1,27 @@
 2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	New matrix-matrix multiplication benchmark.
+
+	* matmul/Makefile.am,
+	* matmul/matmul.c,
+	* matmul/simple.c,
+	* matmul/input.d10,
+	* matmul/input.d30,
+	* matmul/simple_d_10.c,
+	* matmul/simple_f_10.c,
+	* matmul/simple_l_10.c,
+	* matmul/simple_d_30.c,
+	* matmul/simple_f_30.c,
+	* matmul/simple_l_30.c,
+	* matmul/simple_d_var.c,
+	* matmul/simple_f_var.c,
+	* matmul/simple_l_var.c: New.
+
+	* Makefile.am,
+	* configure.ac: Update accordingly.
+
+2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix some benchmarks.
 
 	* benchmarks/lib/benchmark.c (run_benchmark): Initialize the

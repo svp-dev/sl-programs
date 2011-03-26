@@ -39,6 +39,7 @@ AM_CONDITIONAL([ENABLE_DEMOS], [test "x$enable_build_programs" = "xyes"])
 AC_CONFIG_FILES([
 	Makefile
 	demo/Makefile
+	matmul/Makefile
 	benchmarks/Makefile
 	benchmarks/lib/Makefile
 	benchmarks/blas/Makefile

@@ -1,4 +1,4 @@
-SUBDIRS = . demo benchmarks
+SUBDIRS = . demo matmul benchmarks
 
 ACLOCAL_AMFLAGS = -I build-aux
 
