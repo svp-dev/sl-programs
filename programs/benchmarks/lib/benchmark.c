@@ -33,6 +33,7 @@
 #define putc(C) output_char((C), 1)
 
 slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
+         slr_var(unsigned, ncores, "(unused)"),
 	 slr_var(int, format, "format for benchmark results (default=0=fibre, 1=raw)"),
 	 slr_var(int, results, "output computation results (default 0=no)"),
 	 slr_var(int, sep_dump, "output initial place configuration (default 0=no)"));

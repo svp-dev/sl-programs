@@ -1,3 +1,10 @@
+2011-03-27  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Minor fix to the benchmarking framework.
+
+	* benchmarks/lib/benchmark.c: Define the `slr' variable `ncores'
+	for backward compatibility, although it is not used any more.
+
 2011-03-26  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	New matrix-matrix multiplication benchmark.
