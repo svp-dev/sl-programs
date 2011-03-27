@@ -26,9 +26,7 @@ struct work_lapses {
 
 struct benchmark_state {
     void* data;
-#if SVP_HAS_SEP
-    struct placeinfo *place;
-#endif
+    union placeinfo *place;
     struct work_lapses * wl;
 };
 

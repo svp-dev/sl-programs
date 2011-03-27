@@ -40,7 +40,7 @@ slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
 
 
 extern sl_place_t __main_place_id;
-extern struct placeinfo *__main_placeinfo;
+union placeinfo __main_placeinfo;
 
 sl_decl(t_main, void);
 
@@ -110,9 +110,10 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   struct benchmark_state bs;
   bs.wl = &wl;
   bs.data = 0;
-#if SVP_HAS_SEP
-  bs.place = __main_placeinfo;
-#endif
+
+  int qr = sep_query(root_sep, &__main_place_id, &__main_placeinfo);
+  bs.place = (qr == -1) ? 0 : &__main_placeinfo;
+
   size_t p = 0;
 
   puts("# 1. initialize...");

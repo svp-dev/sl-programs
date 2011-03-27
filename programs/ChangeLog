@@ -1,5 +1,19 @@
 2011-03-27  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Adjust programs that use the SEP to adapt to the new interface.
+
+	* programs/benchmarks/benchmarks.h: `union placeinfo' instead of
+	`struct placeinfo'.
+
+	* programs/benchmarks/benchmarks.c: Use the new SEP interface. Use
+	the new query interface to extract the number of cores.
+
+	* programs/demo/sep.c,
+	* programs/benchmarks/mandel/mandel.c,
+	* programs/benchmarks/livermore/ll-generate.py: Use the new interface.
+	
+2011-03-27  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Minor fix to the benchmarking framework.
 
 	* benchmarks/lib/benchmark.c: Define the `slr' variable `ncores'

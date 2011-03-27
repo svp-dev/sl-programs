@@ -174,12 +174,11 @@ sl_def(work, void,
     sl_glparm(struct benchmark_state*, st))
 {
    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+   size_t ncores = 1;
+   if (sl_getp(st)->place)
+      ncores = sl_getp(st)->place->c.arity;
    sl_create(,,,,,,, kernel%d, 
-#if SVP_HAS_SEP
-             sl_glarg(size_t, , sl_getp(st)->place->ncores),
-#else
-             sl_glarg(size_t, , 1),
-#endif
+             sl_glarg(size_t, , ncores),
              sl_glarg(size_t, , bdata->n)
 """ % (k['idx'], k['idx'])
     

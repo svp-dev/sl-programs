@@ -34,13 +34,12 @@ int lrand(void)
     return (int)((next >> 16) & 0x7fffffff);
 }
 
-#define STRFY(Val) #Val
-#define MAKEREQ(Val) { STRFY(Val), Val }
+#define MAKEREQ(Val1) { #Val1, SEP_ALLOC|(Val1)}
 
-#if SVP_HAS_SEP
 struct req {
     const char *desc;
-    unsigned long policy;
+    unsigned long request;
+    void  *arg;
 };
 
 static
@@ -48,39 +47,29 @@ struct req sizes[] = {
     MAKEREQ(SAL_DONTCARE),
     MAKEREQ(SAL_DONTCARE),
     MAKEREQ(SAL_DONTCARE),
-    MAKEREQ(SAL_MIN|4),
-    MAKEREQ(SAL_MIN|4),
-    MAKEREQ(SAL_MAX|4),
-    MAKEREQ(SAL_MAX|4),
-    MAKEREQ(SAL_EXACT|16)
-};
-
-struct req modes[] = {
-    MAKEREQ(0),
-    MAKEREQ(SAL_EXCLUSIVE),
-    MAKEREQ(SAL_SHARED),
-    MAKEREQ(SAL_SHARED|SAL_EXCLUSIVE)
+    MAKEREQ(SAL_MIN),
+    MAKEREQ(SAL_MIN),
+    MAKEREQ(SAL_MAX),
+    MAKEREQ(SAL_MAX),
+    MAKEREQ(SAL_EXACT)
 };
 
 struct results {
-    const char *modedesc;
     const char *sizedesc;
-    struct placeinfo *result;
+    sl_place_t result;
 };
 
 #define MAXTRIES 50
 static
 struct results res[MAXTRIES];
 
-#endif
+extern void sep_dump_info(struct SEP*);
 
 sl_def(t_main, void)
 {
-#if SVP_HAS_SEP
 
   struct SEP* restrict sep = root_sep;
   size_t N = sizeof(res) / sizeof(res[0]);
-  const size_t nmodes = sizeof(modes) / sizeof(modes[0]);
   const size_t nsizes = sizeof(sizes) / sizeof(sizes[0]);
   int dump = 0;
 
@@ -97,44 +86,31 @@ sl_def(t_main, void)
     size_t i;
     
     if (dump) {
-        printf("Status dump (before alloc %u):\n", n);
-        sl_create(,sep->sep_place,,,,,, *sep->sep_dump_info,
-                  sl_glarg(struct SEP*, , sep));
-        sl_sync();
+        printf("Status dump (before alloc %zu):\n", n);
+        sep_dump_info(sep);
     }
     
     for (i = 0; i < N; ++i) {
         int r = lrand();
         r = (r & 0xff) ^ ((r >> 8) & 0xff) ^ ((r >> 16) & 0xff);
-        struct req *m = &modes[r % nmodes];
-        r = lrand();
-        r = (r & 0xff) ^ ((r >> 8) & 0xff) ^ ((r >> 16) & 0xff);
         struct req *s = &sizes[r % nsizes];
+        r = (r & 0x1f) ^ ((r >> 8) & 0x1f) ^ ((r >> 16) & 0x1f);
+        size_t ncores = r;
 
-        res[i].modedesc = m->desc;
         res[i].sizedesc = s->desc;
-        unsigned long policy = m->policy | s->policy;
 
         mtperf_start_interval(ct, cti, i, "alloc");
-        sl_create(,sep->sep_place,,,,, sl__exclusive, *sep->sep_alloc,
-                  sl_glarg(struct SEP*, , sep),
-                  sl_glarg(unsigned long, , policy),
-                  sl_sharg(struct placeinfo*, p, 0));
-        sl_sync();
+        int code = sep_alloc(sep, &(res[i].result), s->request, ncores);
         mtperf_finish_interval(ct, cti++);
 
-        res[i].result = sl_geta(p);
+        const char *success = (code != -1) ? "yes" : "no";
 
-        const char *success = res[i].result ? "yes" : "no";
-        size_t ncores = res[i].result ? res[i].result->ncores : 0;
-        printf("\nRound: %u %u\tPolicy: %s|%s\tSucceeded: %s (%u)\n",
-               n, i, res[i].modedesc, res[i].sizedesc, success, ncores);
+        printf("Round: %zu %zu\tPolicy: %s|%zu\tSucceeded: %s (%#lx)\n",
+               n, i, res[i].sizedesc, ncores, success, res[i].result);
 
-        if (dump && res[i].result) {
-            printf("Status dump (after alloc %u %u):\n", n, i);
-            sl_create(,sep->sep_place,,,,,, *sep->sep_dump_info,
-                      sl_glarg(struct SEP*, , sep));
-            sl_sync();
+        if (dump) {
+            printf("Status dump (after alloc %zu %zu):\n", n, i);
+            sep_dump_info(sep);
         }
     }
 
@@ -143,17 +119,12 @@ sl_def(t_main, void)
     for (i = 0; i < N; ++i) {
         if (res[i].result) {
             mtperf_start_interval(ct, cti, i, "dealloc");
-            sl_create(,sep->sep_place,,,,, sl__exclusive, *sep->sep_free,
-                      sl_glarg(struct SEP*, , sep),
-                      sl_glarg(struct placeinfo*, , res[i].result));
-            sl_sync();
+            sep_free(sep, &res[i].result);
             mtperf_finish_interval(ct, cti++);
 
             if (dump) {
-                printf("\nStatus dump (after free %u %u):\n", n, i);
-                sl_create(,sep->sep_place,,,,,, *sep->sep_dump_info,
-                          sl_glarg(struct SEP*, , sep));
-                sl_sync();
+                printf("\nStatus dump (after free %zu %zu):\n", n, i);
+                sep_dump_info(sep);
             }
         }
         else
@@ -166,8 +137,5 @@ sl_def(t_main, void)
   printf("\nPerformance report (%d):\n", cti);
   mtperf_report_intervals(ct, cti, REPORT_CSV|CSV_INCLUDE_HEADER|CSV_SEP('\t'));
 
-#else
-  printf("SEP protocol not supported.\n");
-#endif
 }
 sl_enddef

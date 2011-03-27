@@ -43,9 +43,6 @@ struct bdata {
 #ifndef SKIP_MEM
   struct point * restrict pixeldata;
 #endif
-#if SVP_HAS_SEP
-  struct placeinfo *pex;
-#endif
 };
 
 sl_def(prepare_colors, void,
@@ -115,21 +112,10 @@ sl_def(initialize, void,
   sl_sync();
 #endif
 
-#if SVP_HAS_SEP && defined(DISPLAY_DURING_COMPUTE) && !defined(PARALLEL_DISPLAY)
-  sl_create(,root_sep->sep_place,,,,,sl__exclusive, *root_sep->sep_alloc,
-	    sl_glarg(struct SEP*, , root_sep),
-	    sl_glarg(unsigned long, , SAL_DONTCARE|SAL_EXCLUSIVE),
-	    sl_sharg(struct placeinfo*, pex, 0));
-  sl_sync();
+#if defined(DISPLAY_DURING_COMPUTE) && !defined(PARALLEL_DISPLAY)
+  int sep_alloc_result = sep_alloc(root_sep, SAL_DONTCARE, &bdata->excl_place, 0);
+  assert(sep_alloc_result != -1);
   assert(sl_geta(pex) != 0);
-
-  bdata->pex = sl_geta(pex);
-  bdata->excl_place = sl_geta(pex)->pid;
-
-/*
-  fprintf(stderr, "Allocated exclusive place, pid = 0x%lx, ncores = %d\n", sl_geta(pex)->pid, sl_geta(pex)->ncores);
-*/
-
 #else
   bdata->excl_place = PLACE_DEFAULT;
 #endif
@@ -373,11 +359,8 @@ sl_def(teardown, void,
 #ifdef MANY_COLORS
   free(bdata->colors);
 #endif
-#if SVP_HAS_SEP && defined(DISPLAY_DURING_COMPUTE) && !defined(PARALLEL_DISPLAY)
-  sl_create(,root_sep->sep_place,,,,,sl__exclusive, *root_sep->sep_free,
-	    sl_glarg(struct SEP*, , root_sep),
-	    sl_glarg(struct placeinfo*, , bdata->pex));
-  sl_sync();
+#if defined(DISPLAY_DURING_COMPUTE) && !defined(PARALLEL_DISPLAY)
+  sep_free(root_sep, &bdata->excl_place);
 #endif
   free(bdata);
 }
