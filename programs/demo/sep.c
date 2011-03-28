@@ -106,7 +106,7 @@ sl_def(t_main, void)
         const char *success = (code != -1) ? "yes" : "no";
 
         printf("Round: %zu %zu\tPolicy: %s|%zu\tSucceeded: %s (%#lx)\n",
-               n, i, res[i].sizedesc, ncores, success, res[i].result);
+               n, i, res[i].sizedesc, ncores, success, (unsigned long)res[i].result);
 
         if (dump) {
             printf("Status dump (after alloc %zu %zu):\n", n, i);

@@ -1,3 +1,12 @@
+2011-03-28  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Minor SEP-related changes.
+
+	* benchmarks/livermore/ll-generate.py: Do not use the arity field
+	in the place information structure if the place is atomic.
+	
+	* programs/demo/sep.c: Cast places to `long' before printing.
+
 2011-03-27  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Adjust programs that use the SEP to adapt to the new interface.

@@ -175,8 +175,9 @@ sl_def(work, void,
 {
    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
    size_t ncores = 1;
-   if (sl_getp(st)->place)
+   if (sl_getp(st)->place && SP_IS_COMPOUND(sl_getp(st)->place))
       ncores = sl_getp(st)->place->c.arity;
+
    sl_create(,,,,,,, kernel%d, 
              sl_glarg(size_t, , ncores),
              sl_glarg(size_t, , bdata->n)
@@ -221,6 +222,7 @@ def gencode(k):
 #include <svp/testoutput.h>
 #include "benchmark.h"
 #include <svp/fibre.h>
+#include <svp/sep.h>
 #include <svp/fast_malloc.h>
 #include <assert.h>
 #include <stdlib.h>
