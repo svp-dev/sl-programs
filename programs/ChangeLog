@@ -1,3 +1,17 @@
+2011-04-15  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Improve the `matmul' benchmark.
+
+	* matmul/simple.c: Ensure that each multiply phase has an output
+	matrix distinct from the input.
+	
+	* matmul/Makefile.am (.c.tar): Add a rule to generate Unibench
+	archives.
+
+	* matmul/input.d10,
+	* matmul/input.d30: Define less iterations and sane values to
+	avoid overflows.
+
 2011-03-28  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Minor SEP-related changes.

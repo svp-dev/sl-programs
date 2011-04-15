@@ -37,3 +37,22 @@ if ENABLE_DEMOS
 noinst_DATA = $(DEMOS:.c=.x)
 CLEANFILES = $(DEMOS:.c=.x) $(DEMOS:.c=.bin.*)
 endif
+
+.c.tar: $(EXTRA_DIST) $(DEMOS)
+	$(AM_V_at)rm -rf $@ $@.tmp
+	$(AM_V_GEN)b="$<" && \
+	  bn=$$(basename $$b .c) && \
+	  rm -rf "$$bn" && \
+	  $(MKDIR_P) "$$bn" && \
+	  for f in $(EXTRA_DIST) $(DEMOS); do \
+	    case $$f in *.d*[0-9]|*.inputs|*.bmk|*fdatas.mk) continue ;; esac && \
+	    dn=$$(dirname $$(echo $$f|$(SED) -e 's|^'$(abs_top_srcdir).*/'||g')) && \
+	    $(MKDIR_P) $$bn/$$dn && \
+	    cp `test -r $$f || echo $(srcdir)/`$$f $$bn/$$dn/; \
+	  done && \
+	  echo "a.out: $$bn.c; "'$$'"(COMPILER) "'$$'"(FLAGS) -I. -o "'$$'"@ "'$$'"^ -lm" \
+	     >$$bn/Makefile && \
+	  tardir=$$bn && $(am__tar) >$@.tmp && \
+	  rm -rf $$bn
+	$(AM_V_at)chmod -w $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
