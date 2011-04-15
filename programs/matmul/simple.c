@@ -73,7 +73,7 @@ sl_def(t_main, void)
     struct s_interval ivs[L + 1];
     size_t i, j;
 
-    mtperf_start_interval(ivs, 0, 0, "work");
+    mtperf_start_interval(ivs, 0, 1, "work");
     mtperf_start_interval(ivs, 1, 1, "compute");
     sl_proccall(matmul,
                 sl_glarg(void*, , a),

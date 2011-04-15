@@ -2,6 +2,13 @@
 
 	Improve the `matmul' benchmark.
 
+	* matmul/simple.c: Use work interval number 1, as per the latest
+	Unibench benchmark spec.
+
+2011-04-15  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Improve the `matmul' benchmark.
+
 	* matmul/simple.c: Ensure that each multiply phase has an output
 	matrix distinct from the input.
 	
