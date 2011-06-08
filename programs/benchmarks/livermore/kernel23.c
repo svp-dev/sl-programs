@@ -90,7 +90,7 @@ sl_def(outerk23, void,
     sl_index(j);
 
     long temp = sl_getp(token);
-    sl_create(,, 1, sl_getp(n),,,,innerk23,
+    sl_create(,, 1, sl_getp(n),,,sl__strategy(balanced),innerk23,
               sl_shfarg(double, , ZA(0, j)),
               sl_glarg(long , , j),
               sl_glarg(size_t, , sl_getp(n)),
@@ -143,7 +143,7 @@ sl_def(kernel23, void,
     assert(sl_getp(ZV_dim0) == 7);
     assert(sl_getp(ZZ_dim0) == 7);
 
-    sl_create(,, 1,6,,2,,outerk23,
+    sl_create(,, 1,6,,,,outerk23,
               sl_sharg(long, , 0),
               sl_glarg(size_t, , sl_getp(n))
               , sl_glarg(double*restrict, , sl_getp(ZA))

@@ -73,7 +73,7 @@ sl_def(outerk6,void,
 
     //creation here needs to be sequentialised
     long temp = sl_getp(token);
-    sl_create(,, 0, i, 1,,, innerk6,
+    sl_create(,, 0, i, 1,,sl__strategy(balanced), innerk6,
               sl_shfarg(double, Wi, sl_getp(Wi_init)),
               sl_glarg(double*, , sl_getp(W)),
               sl_glarg(const double*, , sl_getp(B)),
@@ -102,7 +102,7 @@ sl_def(kernel6, void,
     assert(sl_getp(B_dim0) == sl_getp(n));
     assert(sl_getp(B_dim1) == sl_getp(n));
     assert(sl_getp(W_dim0) == sl_getp(n));
-    sl_create(,, 1, sl_getp(n), , 2, , outerk6,
+    sl_create(,, 1, sl_getp(n), , sl_getp(ncores), , outerk6,
               sl_sharg(long, , 0),
               sl_glfarg(double, , 0.01),
               sl_glarg(double*, , sl_getp(W)),

@@ -62,7 +62,7 @@ sl_def(outerk4, void,
 {
     sl_index(i);
 
-    sl_create(,, 0, sl_getp(ndiv5), 1,,,innerk4,
+    sl_create(,PLACE_LOCAL, 0, sl_getp(ndiv5), 1,,,innerk4,
               sl_shfarg(double, totalr, 0.0),
               sl_glarg(const double*, , sl_getp(XZ)),
               sl_glarg(const double*, , sl_getp(Y)),

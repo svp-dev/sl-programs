@@ -1,3 +1,20 @@
+2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Improve the LL benchmarks containing dependent loops.
+
+	* benchmarks/livermore/kernel3.c: Use the new place identifier
+	semantics from MGSim to ensure a distribution across cores.
+
+	* benchmarks/livermore/kernel4.c: Place each dependent loop on the
+	same core as its parent.
+
+	* benchmarks/livermore/kernel6.c,
+	* benchmarks/livermore/kernel23.c: Place the singleton families
+	using the balanced strategy.
+
+	* benchmarks/livermore/ll-generate.py: Include `<svp/delegate.h>'
+	in the generated code.
+
 2011-04-15  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Improve the `matmul' benchmark.

@@ -56,14 +56,15 @@ sl_def(reductionk3, void,
        sl_shfparm(double, Q),
        sl_glparm(const double*restrict, Z),
        sl_glparm(const double*restrict, X),
-       sl_glparm(long, iternum))
+       sl_glparm(long, iternum),
+       sl_glparm(sl_place_t, base_pid))
 {
     sl_index(redindex);
 
     long lower = sl_getp(iternum) * redindex;
     long upper = lower + sl_getp(iternum);
 
-    sl_create(,PLACE_LOCAL, lower, upper, 1,,, innerk3,
+    sl_create(, sl_getp(base_pid) | (redindex << 1), lower, upper, 1,,, innerk3,
               sl_shfarg(double, Qr, 0.0),
               sl_glarg(const double*, , sl_getp(Z)),
               sl_glarg(const double*, , sl_getp(X)));
@@ -96,12 +97,19 @@ sl_def(kernel3, void,
     long blocking = 1; // some arbitrary blocking factor
     long usecores = sl_getp(ncores) * blocking;
     long span = sl_getp(n) / usecores;
+    sl_place_t base_pid;
 
-    sl_create(,, , usecores, , blocking, , reductionk3,
+    base_pid = get_current_place();
+    base_pid = base_pid & (base_pid - 1); // remove the size bit
+    base_pid |= 1; // force size 1.
+
+    sl_create(,, , usecores, , usecores, , reductionk3,
               sl_shfarg(double, Qr, sl_getp(Q)),
               sl_glarg(const double*, , sl_getp(Z)),
               sl_glarg(const double*, , sl_getp(X)),
-              sl_glarg(long, , span) );
+              sl_glarg(long, , span),
+              sl_glarg(sl_place_t, , base_pid)
+        );
     sl_sync();
 #endif
 
