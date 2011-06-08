@@ -18,7 +18,7 @@ sl_def(key_blit, void,
        sl_glparm(unsigned long, key))
 {
   sl_index(i);
-  if (sl_getp(sprite)[i] != sl_getp(key))
+  if (sl_getp(img)[i] == sl_getp(key))
     sl_getp(img)[i] = sl_getp(sprite)[i];
 }
 sl_enddef

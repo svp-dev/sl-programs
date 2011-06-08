@@ -1,5 +1,11 @@
 2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix the `keyblit' demo.
+
+	* demo/keyblit.c: Match the key (background), not the foreground.
+
+2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Improve the LL benchmarks containing dependent loops.
 
 	* benchmarks/livermore/kernel3.c: Use the new place identifier
