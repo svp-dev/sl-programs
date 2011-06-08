@@ -1,5 +1,14 @@
 2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Adjust the benchmarks for use with fixed-size framebuffers.
+
+	* benchmarks/mandel/mandel.d2,
+	* demo/ca1d_demo.c,
+	* demo/ca1d_main.c,
+	* demo/checkers.c: Use the fixed size 100x100.
+
+2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix the `keyblit' demo.
 
 	* demo/keyblit.c: Match the key (background), not the foreground.

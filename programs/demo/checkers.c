@@ -17,11 +17,12 @@
 sl_def(t_main, void)
 {
   gfx_init();
-  gfx_resize(8, 8);
+  gfx_resize(10, 10);
 
-  unsigned long x;
-  for (x = 0; x < 64; ++x)
-    gfx_fb_set(x, ((x + x/8)%2) ? 0xffffff : 0);
+  unsigned long x, y;
+  for (y = 0; y < 100; ++y)
+      for (x = 0; x < 100; ++x)
+          gfx_putpixel(x, y, (x + y)%2 ? 0xffffff : 0);
 
   gfx_dump(0, 1, 0, 0);
   gfx_close();

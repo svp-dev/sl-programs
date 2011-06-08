@@ -18,12 +18,12 @@ slr_decl(slr_var(int, rule, "Wolfram code"),
 
 sl_def(t_main,void)
 {
-    size_t w = 100;
+    size_t w = 98;
     if (slr_len(width)) w = slr_get(width)[0];
 
     size_t row_width = w + 2;
 
-    size_t iters = 100;
+    size_t iters = 99;
     if (slr_len(iters)) iters = slr_get(iters)[0];
 
     ++iters;
