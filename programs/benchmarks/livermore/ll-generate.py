@@ -37,7 +37,7 @@ sl_def(initialize, void,
     sl_glparm(struct benchmark_state*, st))
 {
    size_t i, f = 0;
-   struct bdata *bdata = (struct bdata*) fast_malloc(sizeof (struct bdata));
+   struct bdata *bdata = (struct bdata*) malloc(sizeof (struct bdata));
    assert(bdata != NULL);
 
    output_char('\\n', 1);
@@ -71,7 +71,7 @@ sl_def(initialize, void,
                 print >>f, "   bdata->%s = (double*)fibre_data(f);" % name
             else:
                 print >>f, "   bdata->%s_orig = (const double*)fibre_data(f);" % name
-                print >>f, "   bdata->%s = (double*)fast_malloc(sizeof(double) * %s);" % (name, sspec)
+                print >>f, "   bdata->%s = (double*)malloc(sizeof(double) * %s);" % (name, sspec)
             print >>f, "   bdata->%s_size = %s; ++f;\n" % (name, sspec)
 
     print >>f, """
@@ -137,9 +137,9 @@ sl_def(teardown, void,
    
     for (name, spec) in k['args'].items():
         if spec['type'] == 'array' and 'w' in spec['mode'] and 'r' in spec['mode']:
-            print >>f, "   fast_free(bdata->%s);" % name
+            print >>f, "   free(bdata->%s);" % name
     print >>f, """
-   fast_free(bdata);
+   free(bdata);
 }
 sl_enddef
 """
@@ -224,7 +224,6 @@ def gencode(k):
 #include "benchmark.h"
 #include <svp/fibre.h>
 #include <svp/sep.h>
-#include <svp/fast_malloc.h>
 #include <assert.h>
 #include <stdlib.h>
 

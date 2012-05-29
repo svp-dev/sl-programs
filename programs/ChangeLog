@@ -1,5 +1,13 @@
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Upgrade benchmark code to the latest SL library.
+
+	* benchmarks/lib/benchmark.c,
+	* benchmarks/livermore/ll-generate.py: The `fast_*' memory
+	management functions have been deprecated. Avoid using them.
+
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Extend the tmalloc demo.
 
 	* demo/tmalloc.c: Add an empty interval to show the overhead of

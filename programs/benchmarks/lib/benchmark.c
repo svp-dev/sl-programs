@@ -17,7 +17,6 @@
 #include <svp/perf.h>
 #include <svp/slr.h>
 #include <svp/testoutput.h>
-#include <svp/fast_malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +49,7 @@ int main(void)
     return 0; 
 }
 
-sl_def(do_work, sl__static,
+sl_def(do_work, ,
        sl_glparm(size_t, p),
        sl_glparm(int, i),
        sl_glparm(struct benchmark *, b),
@@ -101,7 +100,7 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
 
   /* prepare intervals and lapses */
   struct s_interval *intervals;
-  intervals = (struct s_interval*)fast_calloc(4 + L + 10 * L, sizeof (struct s_interval));
+  intervals = (struct s_interval*)calloc(4 + L + 10 * L, sizeof (struct s_interval));
 
   struct work_lapses wl = { 0, 0, intervals };
 
