@@ -1,5 +1,13 @@
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix the benchmark Makefile generation.
+
+	* build-aux/benchmarks.mk (BENCH_BINFORMATS): Use `ptl_n', not
+	`ptl' since the latter has been deprecated in the more recent
+	versions of slc.
+
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Enhance the `mandel' benchmark/demo.
 
 	* benchmarks/mandel/mandel.c: Provide code to use a round-robin

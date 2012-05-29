@@ -17,7 +17,7 @@ BUILT_SOURCES =
 ### Generating dependency makefiles
 ###
 PLIST ?= 1 2 4 8 16 32 64
-BENCH_BINFORMATS ?= seqc ptl mta mta_n mta_on mta_s
+BENCH_BINFORMATS ?= seqc ptl_n mta mta_n mta_on mta_s
 
 SUFFIXES += .ilist
 ILIST_FILES = $(BENCHMARKS:.c=.ilist)
