@@ -1,3 +1,10 @@
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Fix the checkers demo.
+
+	* demo/checkers.c: Fix the loop ierations to fit in the configured
+	resolutions (10x10).
+
 2011-06-08  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Adjust the benchmarks for use with fixed-size framebuffers.
