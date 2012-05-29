@@ -1,5 +1,12 @@
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix the roman demo.
+
+	* demo/roman.c: Import the roman printing code since it is not
+	part of the SL library any more.
+
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix the checkers demo.
 
 	* demo/checkers.c: Fix the loop ierations to fit in the configured
