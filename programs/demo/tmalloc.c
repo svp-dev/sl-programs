@@ -40,7 +40,7 @@ extern void tls_malloc_stats(void);
 
 sl_def(t_main, void)
 {
-    struct s_interval a[2];
+    struct s_interval a[3];
     size_t N = 1000;
     if (slr_len(N)) N = slr_get(N)[0];
 
@@ -64,6 +64,9 @@ sl_def(t_main, void)
     sl_create(,,,N,,B,,dofree); sl_sync();
     mtperf_finish_interval(a, 1);
 
-    mtperf_report_intervals(a, 2, REPORT_CSV|CSV_SEP('\t')|CSV_INCLUDE_HEADER);
+    mtperf_start_interval(a, 2, 0, "baseline");
+    mtperf_finish_interval(a, 2);
+
+    mtperf_report_intervals(a, 3, REPORT_CSV|CSV_SEP('\t')|CSV_INCLUDE_HEADER);
 }
 sl_enddef

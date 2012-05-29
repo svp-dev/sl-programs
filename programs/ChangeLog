@@ -1,5 +1,13 @@
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Extend the tmalloc demo.
+
+	* demo/tmalloc.c: Add an empty interval to show the overhead of
+	measurement (necessary since malloc/free are now quite low
+	latency).
+
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix the roman demo.
 
 	* demo/roman.c: Import the roman printing code since it is not
