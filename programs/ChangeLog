@@ -1,5 +1,14 @@
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Enhance the `mandel' benchmark/demo.
+
+	* benchmarks/mandel/mandel.c: Provide code to use a round-robin
+	distribution of points to cores instead of the naive N/P
+	distribution. Use this code by default on MT targets, or if
+	-DOTHER_DIST is used during preprocessing.
+
+2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Upgrade benchmark code to the latest SL library.
 
 	* benchmarks/lib/benchmark.c,

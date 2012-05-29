@@ -1,7 +1,7 @@
 //
 // mandel.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009,2010,2011,2012 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,6 +22,10 @@
 #include <svp/sep.h>
 
 #include "benchmark.h"
+
+#if defined(__mt_freestanding__) && !defined(BASE_DIST)
+#define OTHER_DIST
+#endif
 
 struct point
 { short x, y; uint32_t data; };
@@ -226,6 +230,10 @@ sl_def(mandel, void,
 )
 {
   sl_index(i);
+#ifdef ADVERTISE
+  //output_uint(i, 0);
+  counter_t c1 = mtperf_sample1(MTPERF_EXECUTED_INSNS);
+#endif
 
   uint16_t  xb = i % sl_getp(xres);
   double cx = sl_getp(xstart) + xb * sl_getp(xstep);
@@ -265,6 +273,7 @@ sl_def(mandel, void,
   sl_sync();
   size_t v = sl_geta(va);
 #endif
+  __asm__ __volatile__("" : : "r"(v));
 
 #ifdef MANY_COLORS
   v = sl_getp(colors)[v];
@@ -286,8 +295,64 @@ sl_def(mandel, void,
   do_display(dx, dy, v);
 #endif
 #endif
+
+#ifdef ADVERTISE
+  output_uint(mtperf_sample1(MTPERF_EXECUTED_INSNS)-c1, 0);
+#endif
 }
 sl_enddef
+
+#ifdef OTHER_DIST
+sl_def(mandelouter, void,
+       sl_glfparm(double, xstart),
+       sl_glfparm(double, ystart),
+       sl_glfparm(double, xstep),
+       sl_glfparm(double, ystep),
+       sl_glparm(size_t, npoints),
+       sl_glparm(size_t, blocksize),
+       sl_glparm(uint16_t, xres),
+       sl_glparm(size_t, icount)
+#ifdef MANY_COLORS
+       , sl_glparm(uint32_t*restrict, colors)
+#endif
+#ifndef SKIP_MEM
+       , sl_glparm(struct point*restrict, mem)
+#endif
+#if defined(DISPLAY_DURING_COMPUTE) && !defined(PARALLEL_DISPLAY)
+       , sl_glparm(sl_place_t, excl_place)
+#endif
+)
+{
+    sl_index(i);
+    sl_create(,PLACE_LOCAL, i, sl_getp(npoints)+i, sl_placement_size(sl_default_placement()), sl_getp(blocksize), ,
+              mandel,
+              sl_glfarg(double, , 4.0),
+              sl_glfarg(double, , sl_getp(xstart)),
+              sl_glfarg(double, , sl_getp(ystart)),
+              sl_glfarg(double, , sl_getp(xstep)),
+              sl_glfarg(double, , sl_getp(ystep)),
+              sl_glarg(uint16_t, , sl_getp(xres)),
+              sl_glarg(size_t, , sl_getp(icount))
+#ifdef MANY_COLORS
+              , sl_glarg(uint32_t*restrict, , sl_getp(colors))
+#endif
+#ifndef SKIP_MEM
+              , sl_glarg(struct point*restrict, , sl_getp(mem))
+#endif
+#ifdef DISPLAY_DURING_COMPUTE
+#ifndef PARALLEL_DISPLAY
+              , sl_glarg(sl_place_t, , sl_getp(excl_place))
+#endif
+#endif
+	    );
+  sl_sync();
+
+
+}
+sl_enddef
+
+#endif
+
 
 sl_def(work, void, sl_glparm(struct benchmark_state*, st))
 {
@@ -295,6 +360,8 @@ sl_def(work, void, sl_glparm(struct benchmark_state*, st))
   struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
 
   start_interval(wl, "compute");
+
+#ifndef OTHER_DIST
   sl_create(,,,bdata->N,,bdata->blocksize,,
 	    mandel,
             sl_glfarg(double, , 4.0),
@@ -317,9 +384,39 @@ sl_def(work, void, sl_glparm(struct benchmark_state*, st))
 #endif
 	    );
   sl_sync();
+#else
+
+  sl_create(,,,sl_placement_size(sl_default_placement()),,1,,
+	    mandelouter,
+	    sl_glfarg(double, , bdata->xmin),
+	    sl_glfarg(double, , bdata->ymin),
+	    sl_glfarg(double, , bdata->xstep),
+	    sl_glfarg(double, , bdata->ystep),
+            sl_glarg(size_t, , bdata->N),
+            sl_glarg(size_t, , bdata->blocksize),
+	    sl_glarg(uint16_t, , bdata->xN),
+	    sl_glarg(size_t, , bdata->icount)
+#ifdef MANY_COLORS
+	    , sl_glarg(uint32_t*restrict, , bdata->colors)
+#endif
+#ifndef SKIP_MEM
+	    , sl_glarg(struct point*restrict, , bdata->pixeldata)
+#endif
+#ifdef DISPLAY_DURING_COMPUTE
+#ifndef PARALLEL_DISPLAY
+            , sl_glarg(sl_place_t, , bdata->excl_place)
+#endif
+#endif
+	    );
+  sl_sync();
+
+
+#endif
+
+
   finish_interval(wl);
 
-#ifndef DISPLAY_DURING_COMPUTE
+#if !defined(DISPLAY_DURING_COMPUTE) && !defined(SKIP_MEM)
   start_interval(wl, "display");
 #ifdef PARALLEL_DISPLAY
   sl_create(,,,bdata->N,,bdata->blocksize,,
