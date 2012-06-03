@@ -22,14 +22,8 @@
 #include <stdlib.h>
 #include "benchmark.h"
 
-#ifdef puts
-#undef puts
-#endif
-#define puts(S) output_string((S), 1)
-#ifdef putc
-#undef putc
-#endif
-#define putc(C) output_char((C), 1)
+#define pr(S) output_string((S), 1)
+#define prnl() output_char('\n', 1)
 
 slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
          slr_var(unsigned, ncores, "(unused)"),
@@ -96,7 +90,7 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   printf("####\n#### %s\n####\n## By: %s\n", b->title, b->author);
   if (b->description)
     printf("## %s\n", b->description);
-  putc('\n');
+  prnl();
 
   /* prepare intervals and lapses */
   struct s_interval *intervals;
@@ -115,14 +109,14 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
 
   size_t p = 0;
 
-  puts("# 1. initialize...");
+  pr("# 1. initialize...");
   if (initialize) {
     mtperf_start_interval(intervals, p, -1, "initialize");
     sl_proccall(*initialize, sl_glarg(struct benchmark_state*, , &bs));
     mtperf_finish_interval(intervals, p++);
-    puts("ok\n");
+    pr("ok\n");
   } else {
-    puts("(nothing to do)\n");
+    pr("(nothing to do)\n");
     mtperf_empty_interval(intervals, p++, -1, "initialize");
   }
 
@@ -133,9 +127,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
       mtperf_start_interval(intervals, p, i, "prepare");
       sl_proccall(*prepare, sl_glarg(struct benchmark_state*, , &bs));
       mtperf_finish_interval(intervals, p++);
-      puts("ok\n");
+      pr("ok\n");
     } else {
-      puts("(nothing to do)\n");
+      pr("(nothing to do)\n");
       mtperf_empty_interval(intervals, p++, i, "prepare");
     }
 
@@ -150,32 +144,32 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
               sl_glarg(struct benchmark_state*, , &bs));
     sl_sync();
     p = wl.current_interval;
-    puts("ok\n");
+    pr("ok\n");
   }
 
-  puts("# 4. results...");
+  pr("# 4. results...");
   if (results && output) {
-    putc('\n');
+    prnl();
     mtperf_start_interval(intervals, p, -1, "output");
     sl_proccall(*output, sl_glarg(struct benchmark_state*, , &bs));
     mtperf_finish_interval(intervals, p++);
-    putc('\n');
+    prnl();
   } else {
-    puts("(nothing to do)\n");
+    pr("(nothing to do)\n");
     mtperf_empty_interval(intervals, p++, -1, "output");
   }
 
-  puts("# 5. teardown...");
+  pr("# 5. teardown...");
   if (teardown) {
     mtperf_start_interval(intervals, p, -1, "teardown");
     sl_proccall(*teardown, sl_glarg(struct benchmark_state*, _0, &bs));
     mtperf_finish_interval(intervals, p++);
-    puts("ok\n");
+    pr("ok\n");
   } else {
-    puts("(nothing to do)\n");
+    pr("(nothing to do)\n");
     mtperf_empty_interval(intervals, p++, -1, "teardown");
   }
-  puts("# done.\n\n");
+  pr("# done.\n\n");
 
   output_string("### begin benchmark results\n", 2);
   long report_flags = (format ? (REPORT_CSV|CSV_SEP(' ')|CSV_INCLUDE_HEADER) \

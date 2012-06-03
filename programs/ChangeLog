@@ -1,5 +1,12 @@
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Clean up the benchmark framework.
+
+	* benchmarks/lib/benchmark.c: Avoid using the names `putc' and
+	`puts' which have a specific meaning in the C library.
+
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Make the `smooth' benchmark compatible with the `spp' targets.
 
 	* benchmarks/smooth/smooth.c: Do not nest `sl_create' if the
