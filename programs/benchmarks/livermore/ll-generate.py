@@ -6,8 +6,8 @@ import sys
 codepat = "bench%d.c"
 inpat = "bench%d.inputs"
 sizes = [100,200,500,1000,2000,5000,10000,20000,50000,100000]
-dataprefpat = "data/data%d"
-datapat = "data/data%d.d%d"
+dataprefpat = "data%d"
+datapat = "data%d.d%d"
 authors = "mhicks & kena"
 
 def genstatestruct(f, k):
