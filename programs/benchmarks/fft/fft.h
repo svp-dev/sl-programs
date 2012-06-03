@@ -23,22 +23,12 @@ typedef struct { FT re; FT im; } cpx_t;
 
 /* low-level FFT (for benchmarks) */
 
-sl_decl(FFT_1, void,
-       sl_glparm(cpx_t*restrict, X),
-       sl_glparm(unsigned long, N),
-       sl_shparm(long, token),
-       sl_glparm(const void*, t));
-
-sl_decl(FFT_Inv, void,
-	sl_glparm(cpx_t*restrict, X),
-	sl_glparm(unsigned long, M),
-	sl_glparm(struct work_lapses*, wl));
-
-sl_decl(FFT, void,
-       sl_glparm(cpx_t*restrict, X),
-       sl_glparm(unsigned long, M),
-       sl_glparm(struct work_lapses*, wl),
-       sl_glparm(const char*, wname));
+static
+void FFT_1(unsigned long M, cpx_t*restrict, unsigned long, const void*);
+static
+void FFT(cpx_t*restrict X, unsigned long M, struct work_lapses* wl, const char *wname);
+static
+void FFT_Inv(cpx_t*restrict X, unsigned long M, struct work_lapses* wl);
 
 #define STRINGIFY_(N) # N
 #define STRINGIFY(N) STRINGIFY_(N)

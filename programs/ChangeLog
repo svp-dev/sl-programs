@@ -1,5 +1,16 @@
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Simplify the FFT benchmarks.
+
+	* benchmarks/fft/fft.h,
+	* benchmarks/fft/fft-bench.c,
+	* benchmarks/fft/fft_extra.c,
+	* benchmarks/fft/fft_impl1.c,
+	* benchmarks/fft/fft_impl2.c: Use plain C functions for `FFT_1',
+	`FFT' and `FFT_Inv'.
+
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Fix the FFT benchmarks.
 
 	* benchmarks/fft/fft-bench.c (work),

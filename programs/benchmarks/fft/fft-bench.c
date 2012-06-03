@@ -75,34 +75,21 @@ void work(struct benchmark_state* st)
 #ifdef FFT_BENCH_SMALL
   extern const void *sc_table_ptr;
 
-  sl_create(,,1,bdata->M+1,1,1,, FFT_1,
-	    sl_glarg(cpx_t*restrict, , bdata->y_fft),
-	    sl_glarg(unsigned long, , bdata->N/2),
-	    sl_sharg(long, , 0),
-	    sl_glarg(const void*, , sc_table_ptr));
-  sl_sync();
+  FFT_1(bdata->M, bdata->y_fft, bdata->N/2, sc_table_ptr);
 
 #else
 
   struct work_lapses *wl = st->wl;
   int i;
-  sl_create(,,,,,,, FFT,
-	    sl_glarg(cpx_t*restrict, , bdata->y_fft),
-	    sl_glarg(unsigned long, , bdata->M),
-	    sl_glarg(struct work_lapses*, , wl),
-	    sl_glarg(const char*, , "work1"));
-  sl_sync();
+
+  FFT(bdata->y_fft, bdata->M, wl, "work1");
 
   start_interval(wl, "copy");
   for (i = 0; i < bdata->N; ++i)
     bdata->z_inv[i] = bdata->y_fft[i];
   finish_interval(wl);
 
-  sl_create(,,,,,,, FFT_Inv,
-	    sl_glarg(cpx_t*restrict, , bdata->z_inv),
-	    sl_glarg(unsigned long, , bdata->M),
-	    sl_glarg(struct work_lapses*, , wl));
-  sl_sync();
+  FFT_Inv(bdata->z_inv, bdata->M, wl);
 
 #endif
 }

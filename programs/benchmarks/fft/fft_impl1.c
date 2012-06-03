@@ -19,7 +19,7 @@
 
 const void* sc_table_ptr = sc_table;
 
-sl_def(FFT_2, void,
+sl_def(FFT_2, sl__static,
        sl_glparm(cpx_t*restrict, X),
        sl_glparm(unsigned long, k),
        sl_glparm(const void*, t))
@@ -46,7 +46,7 @@ sl_def(FFT_2, void,
 }
 sl_enddef
 
-sl_def(FFT_1, void,
+sl_def(FFT_1_mt, sl__static,
        sl_glparm(cpx_t*restrict, X),
        sl_glparm(unsigned long, N2),
        sl_shparm(long, token),
@@ -63,3 +63,14 @@ sl_def(FFT_1, void,
   sl_setp(token, t);
 }
 sl_enddef
+
+static
+void FFT_1(unsigned long M, cpx_t*restrict X, unsigned long N2, const void* t)
+{
+  sl_create(,,1,M+1,1,2,, FFT_1_mt,
+	    sl_glarg(cpx_t*restrict, , X),
+	    sl_glarg(unsigned long, , N2),
+	    sl_sharg(long, , 0),
+	    sl_glarg(const void*, , t));
+  sl_sync();
+}
