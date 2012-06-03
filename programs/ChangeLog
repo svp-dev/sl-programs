@@ -1,5 +1,13 @@
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Fix the FFT benchmarks.
+
+	* benchmarks/fft/fft-bench.c (work),
+	* benchmarks/fft/fft_extra.c (FFT): Do not restrict to
+	`PLACE_LOCAL', otherwise the inner family cannot spread any more.
+
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Improve the benchmarking makefile.
 
 	* build-aux/benchmarks.mk: Do not use a common "fail"

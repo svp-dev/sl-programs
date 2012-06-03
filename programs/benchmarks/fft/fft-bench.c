@@ -75,7 +75,7 @@ void work(struct benchmark_state* st)
 #ifdef FFT_BENCH_SMALL
   extern const void *sc_table_ptr;
 
-  sl_create(,PLACE_LOCAL,1,bdata->M+1,1,,, FFT_1,
+  sl_create(,,1,bdata->M+1,1,1,, FFT_1,
 	    sl_glarg(cpx_t*restrict, , bdata->y_fft),
 	    sl_glarg(unsigned long, , bdata->N/2),
 	    sl_sharg(long, , 0),

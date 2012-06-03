@@ -69,7 +69,7 @@ sl_def(FFT, void,
   finish_interval(wl);
 
   start_interval(wl, sl_getp(wname));
-  sl_create(,PLACE_LOCAL,1,sl_getp(M)+1,1,,, FFT_1,
+  sl_create(,,1,sl_getp(M)+1,1,2,, FFT_1,
 	    sl_glarg(cpx_t*restrict, , sl_getp(X)),
 	    sl_glarg(unsigned long, , N/2),
 	    sl_sharg(long, , 0),
