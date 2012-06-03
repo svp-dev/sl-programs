@@ -169,14 +169,22 @@ sl_def(work, void, sl_glparm(struct benchmark_state*, st))
                 sl_glarg(double*restrict,,a), 
                 sl_glarg(double*restrict,,b), 
                 sl_glfarg(double, , 1.0/8.0));
+#if defined(__slc_dialect_spp__)
+      sl_sync();
+#endif
       sl_create(,,0, N, 1, 4,, copy,
                 sl_glarg(double*restrict,,a),
                 sl_glarg(double*restrict,,b));
+#if defined(__slc_dialect_spp__)
+      sl_sync();
+#endif
       sl_create(,,(data_size-N), data_size, 1, 4,, copy,
                 sl_glarg(double*restrict,,a),
                 sl_glarg(double*restrict,,b));
+#if !defined(__slc_dialect_spp__)
       sl_sync();
       sl_sync();
+#endif
       sl_sync();
 #ifdef ITERS
       finish_interval(wl);
