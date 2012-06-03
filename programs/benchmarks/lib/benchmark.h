@@ -1,7 +1,7 @@
 //
 // benchmark.h: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009,2010,2012 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,14 +34,14 @@ struct benchmark {
     const char *title;
     const char *author;
     const char *description;
-    sl_decl_fptr(initialize, void, sl_glparm(struct benchmark_state*, state));
-    sl_decl_fptr(prepare, void, sl_glparm(struct benchmark_state*, state));
-    sl_decl_fptr(work, void, sl_glparm(struct benchmark_state*, state));
-    sl_decl_fptr(output, void, sl_glparm(struct benchmark_state*, state));
-    sl_decl_fptr(teardown, void, sl_glparm(struct benchmark_state*, state));
+    void (*initialize)(struct benchmark_state* state);
+    void (*prepare)(struct benchmark_state* state);
+    void (*work)(struct benchmark_state* state);
+    void (*output)(struct benchmark_state* state);
+    void (*teardown)(struct benchmark_state* state);
 };
 
-sl_decl(run_benchmark, void, sl_glparm(struct benchmark*, b));
+void run_benchmark(struct benchmark* b);
 
 #define start_interval(wl, Tag) \
   mtperf_start_interval(wl->intervals, wl->current_interval, wl->current_iter, (Tag))

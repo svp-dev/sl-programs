@@ -33,8 +33,7 @@ def genstatestruct(f, k):
 
 def geninit(f, k):
     print >>f, """
-sl_def(initialize, void,
-    sl_glparm(struct benchmark_state*, st))
+void initialize(struct benchmark_state* st)
 {
    size_t i, f = 0;
    struct bdata *bdata = (struct bdata*) malloc(sizeof (struct bdata));
@@ -75,18 +74,16 @@ sl_def(initialize, void,
             print >>f, "   bdata->%s_size = %s; ++f;\n" % (name, sspec)
 
     print >>f, """
-   sl_getp(st)->data = (void*) bdata;
+   st->data = (void*) bdata;
 }
-sl_enddef
 """
 
 def genprepare(f, k):
     print >>f, """
-sl_def(prepare, void,
-    sl_glparm(struct benchmark_state*, st))
+void prepare(struct benchmark_state* st)
 {
    size_t i;
-   struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+   struct bdata *bdata = (struct bdata*)st->data;
 """
    
     for (name, spec) in k['args'].items():
@@ -99,16 +96,14 @@ sl_def(prepare, void,
 
     print >>f, """
 }
-sl_enddef
 """
 
 def genoutput(f, k):
     print >>f, """
-sl_def(output, void,
-    sl_glparm(struct benchmark_state*, st))
+void output(struct benchmark_state* st)
 {
    size_t i;
-   struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+   struct bdata *bdata = (struct bdata*)st->data;
 """
    
     l = k['args_order']
@@ -124,15 +119,13 @@ sl_def(output, void,
 
     print >>f, """
 }
-sl_enddef
 """
 
 def genteardown(f, k):
     print >>f, """
-sl_def(teardown, void,
-    sl_glparm(struct benchmark_state*, st))
+void teardown(struct benchmark_state* st)
 {
-   struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+   struct bdata *bdata = (struct bdata*)st->data;
 """
    
     for (name, spec) in k['args'].items():
@@ -141,7 +134,6 @@ sl_def(teardown, void,
     print >>f, """
    free(bdata);
 }
-sl_enddef
 """
 
 def genwork(f, k):
@@ -170,13 +162,12 @@ def genwork(f, k):
 
 #include "kernel%d.c"
 
-sl_def(work, void,
-    sl_glparm(struct benchmark_state*, st))
+void work(struct benchmark_state* st)
 {
-   struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+   struct bdata *bdata = (struct bdata*)st->data;
    size_t ncores = 1;
-   if (sl_getp(st)->place && SP_IS_COMPOUND(sl_getp(st)->place))
-      ncores = sl_getp(st)->place->c.arity;
+   if (st->place && SP_IS_COMPOUND(st->place))
+      ncores = st->place->c.arity;
 
    sl_create(,,,,,,, kernel%d, 
              sl_glarg(size_t, , ncores),
@@ -205,7 +196,6 @@ sl_def(work, void,
             print >>f, "   bdata->%s = sl_geta(%s);" % (name, name)
     print >>f, """
 }
-sl_enddef
 """
 
 
@@ -243,15 +233,15 @@ def gencode(k):
 
     print >>f, """
 
-sl_def(t_main, void)
+int main(void)
 {
   struct benchmark b = {
      "%s", "%s", "%s", 
      &initialize, &prepare, &work, &output, &teardown
   };
-  sl_proccall(run_benchmark, sl_glarg(struct benchmark*, , &b));
+  run_benchmark(&b);
+  return 0;
 }
-sl_enddef
 """ % ("LK%d (%s)" % (idx, k['key']), authors, k['desc'])
     f.close()
 

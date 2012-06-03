@@ -31,8 +31,7 @@ struct bdata {
   size_t N;
 };
 
-sl_def(initialize, void,
-       sl_glparm(struct benchmark_state*, st))
+void initialize(struct benchmark_state* st)
 {
   int i;
   struct bdata *bdata = (struct bdata*) malloc(sizeof(struct bdata));
@@ -58,24 +57,20 @@ sl_def(initialize, void,
   bdata->z_inv = (cpx_t*)malloc(sizeof(cpx_t) * bdata->N);
   assert(bdata->z_inv != 0);
 
-  sl_getp(st)->data = bdata;
+  st->data = bdata;
 }
-sl_enddef
 
-sl_def(prepare, void,
-       sl_glparm(struct benchmark_state*, st))
+void prepare(struct benchmark_state* st)
 {
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
   int i;
   for (i = 0; i < bdata->N; ++i)
     bdata->y_fft[i] = bdata->x_orig[i];
 }
-sl_enddef
 
-sl_def(work, void,
-       sl_glparm(struct benchmark_state*, st))
+void work(struct benchmark_state* st)
 {
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
 
 #ifdef FFT_BENCH_SMALL
   extern const void *sc_table_ptr;
@@ -89,7 +84,7 @@ sl_def(work, void,
 
 #else
 
-  struct work_lapses *wl = sl_getp(st)->wl;
+  struct work_lapses *wl = st->wl;
   int i;
   sl_create(,,,,,,, FFT,
 	    sl_glarg(cpx_t*restrict, , bdata->y_fft),
@@ -111,7 +106,6 @@ sl_def(work, void,
 
 #endif
 }
-sl_enddef
 
 
 sl_def(print_fl, void,
@@ -132,10 +126,9 @@ sl_def(print_fl, void,
 }
 sl_enddef
 
-sl_def(output, void,
-       sl_glparm(struct benchmark_state*, st))
+void output(struct benchmark_state* st)
 {
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
   output_string("# Forward FFT:\n", 1);
   sl_create(,,, bdata->N,,,, print_fl,
 	    sl_sharg(long, , 0), sl_glarg(cpx_t*restrict, , bdata->y_fft));
@@ -145,19 +138,16 @@ sl_def(output, void,
 	    sl_sharg(long, , 0), sl_glarg(cpx_t*restrict, , bdata->z_inv));
   sl_sync();
 }
-sl_enddef
 
-sl_def(teardown, void,
-       sl_glparm(struct benchmark_state*, st))
+void teardown(struct benchmark_state* st)
 {
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
   free(bdata->y_fft);
   free(bdata->z_inv);
   free(bdata);
 }
-sl_enddef
 
-sl_def(t_main, void)
+int main(void)
 {
   struct benchmark b = {
     "FFT 1D",
@@ -165,7 +155,6 @@ sl_def(t_main, void)
     "Perform FFT and inverse FFT over a 1D vector " EXTRA_COMMENT,
     &initialize, &prepare, &work, &output, &teardown
   };
-  sl_proccall(run_benchmark, sl_glarg(struct benchmark*, b, &b));
-
+  run_benchmark(&b);
+  return 0;
 }
-sl_enddef

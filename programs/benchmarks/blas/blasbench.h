@@ -32,7 +32,7 @@
 #define END_VARS };
 
 #define BEGIN_READ \
-  sl_def(initialize, void, sl_glparm(struct benchmark_state*, st)) \
+  void initialize(struct benchmark_state* st)     \
   { \
     int i, f = 0;							\
     struct bdata *bdata = (struct bdata*) malloc(sizeof(struct bdata)); \
@@ -70,33 +70,33 @@
   bdata->Var = (FLOAT*)malloc(bdata->N * sizeof(FLOAT));	       \
   assert(bdata->Var != 0);
 
-#define END_READ		     \
-  sl_getp(st)->data = (void*) bdata; \
-	     } sl_enddef
+#define END_READ            \
+  st->data = (void*) bdata; \
+	     }
 
 #define BEGIN_PREPARE \
-  sl_def(prepare, void, sl_glparm(struct benchmark_state*, st)) { \
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data; \
+  void prepare(struct benchmark_state* st) { \
+  struct bdata *bdata = (struct bdata*)st->data;        \
     long i;
 
 #define RESET_ARRAY_INOUT(Var, N)		\
   for (i = 0; i < bdata->N; ++i)		\
     bdata->Var[i] = bdata->Var ## _orig[i];
 
-#define END_PREPARE } sl_enddef
+#define END_PREPARE }
 
 #define BEGIN_WORK \
-  sl_def(work, void, sl_glparm(struct benchmark_state*, st)) { \
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+    void work(struct benchmark_state* st) { \
+    struct bdata *bdata = (struct bdata*)st->data;
 
 #define USE_VAR(Var) bdata->Var
 
-#define END_WORK } sl_enddef
+#define END_WORK }
 
 
 #define BEGIN_OUTPUT \
-  sl_def(output, void, sl_glparm(struct benchmark_state*, st)) { \
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data; \
+    void output(struct benchmark_state* st) {   \
+    struct bdata *bdata = (struct bdata*)st->data; \
     long i;
 
 #define PRINT_ARRAY(Var, N)					\
@@ -113,11 +113,11 @@
   output_int(bdata->Var, 1); \
   output_char('\n', 1);
 
-#define END_OUTPUT } sl_enddef
+#define END_OUTPUT }
 
 #define BEGIN_TEARDOWN \
-  sl_def(teardown, void, sl_glparm(struct benchmark_state*, st)) { \
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  void teardown(struct benchmark_state* st) { \
+    struct bdata *bdata = (struct bdata*)st->data;
 
 #define FREE_ARRAY_INOUT(Var)			\
   free((void*)bdata->Var ## _orig);		\
@@ -128,10 +128,10 @@
 
 #define END_TEARDOWN \
   free(bdata);	     \
-  } sl_enddef
+  }
 
 #define BEGIN_DESC \
-  sl_def(t_main, void) { 					\
+    int main(void) {        \
     struct benchmark b = {
 
 #define BENCH_TITLE(Title) Title,
@@ -142,8 +142,9 @@
 #define BENCH_DESC(Desc) Desc " (using type " STRFY(FLOAT) ")",
 
 #define END_DESC							\
-  &initialize, &prepare, &work, &output, &teardown };			\
-    sl_proccall(run_benchmark, sl_glarg(struct benchmark*, b, &b)); \
-    } \
-  sl_enddef
+    &initialize, &prepare, &work, &output, &teardown };			\
+    run_benchmark(&b);                                                  \
+    return 0;                                                           \
+    }
+
 #endif // ! SL_BENCHMARKS_BLAS_BLASBENCH_H

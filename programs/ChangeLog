@@ -1,5 +1,19 @@
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Simplify the benchmarks.
+
+	* benchmarks/lib/benchmark.h,
+	* benchmarks/lib/benchmark.c,
+	* benchmarks/blas/blasbench.h,
+	* benchmarks/ca/benchca.c,
+	* benchmarks/fft/fft-bench.c,
+	* benchmarks/livermore/ll-generate.py,
+	* benchmarks/mandel/mandel.c,
+	* benchmarks/smooth/smooth.c: Use regular C functions and function
+	pointers for the various benchmark functions.
+
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Clean up the benchmark framework.
 
 	* benchmarks/lib/benchmark.c: Avoid using the names `putc' and

@@ -31,17 +31,8 @@ slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
 	 slr_var(int, results, "output computation results (default 0=no)"),
 	 slr_var(int, sep_dump, "output initial place configuration (default 0=no)"));
 
-
 extern sl_place_t __main_place_id;
 union placeinfo __main_placeinfo;
-
-sl_decl(t_main, void);
-
-int main(void)
-{
-    sl_proccall(t_main);
-    return 0; 
-}
 
 sl_def(do_work, ,
        sl_glparm(size_t, p),
@@ -50,17 +41,13 @@ sl_def(do_work, ,
        sl_glparm(struct s_interval*, intervals),
        sl_glparm(struct benchmark_state*, bs))
 {
-    sl_decl_fptr(work, void, sl_glparm(struct benchmark_state*, st));
-    work = sl_getp(b)->work;
-
     mtperf_start_interval(sl_getp(intervals), sl_getp(p), sl_getp(i), "work");
-    sl_create(,,,,,,, *work, sl_glarg(struct benchmark_state*, , sl_getp(bs)));
-    sl_sync();
+    sl_getp(b)->work(sl_getp(bs));
     mtperf_finish_interval(sl_getp(intervals), sl_getp(p));
 }
 sl_enddef
 
-sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
+void run_benchmark(struct benchmark* b)
 {
   /* configuration from environment */
   unsigned L = 3;
@@ -72,17 +59,6 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   if (slr_len(results)) results = slr_get(results)[0];
   if (slr_len(format)) format = slr_get(format)[0];
   if (slr_len(sep_dump)) sep_dump = slr_get(sep_dump)[0];
-
-  /* extract benchmark callbacks */
-  struct benchmark *b = sl_getp(b);
-  sl_decl_fptr(initialize, void, sl_glparm(struct benchmark_state*, state));
-  sl_decl_fptr(prepare, void, sl_glparm(struct benchmark_state*, state));
-  sl_decl_fptr(output, void, sl_glparm(struct benchmark_state*, state));
-  sl_decl_fptr(teardown, void, sl_glparm(struct benchmark_state*, state));
-  initialize = b->initialize;
-  prepare = b->prepare;
-  output = b->output;
-  teardown = b->teardown;
 
   /* some introduction */
   if (!b->title) b->title = "(unnamed)";
@@ -110,9 +86,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   size_t p = 0;
 
   pr("# 1. initialize...");
-  if (initialize) {
+  if (b->initialize) {
     mtperf_start_interval(intervals, p, -1, "initialize");
-    sl_proccall(*initialize, sl_glarg(struct benchmark_state*, , &bs));
+    b->initialize(&bs);
     mtperf_finish_interval(intervals, p++);
     pr("ok\n");
   } else {
@@ -123,9 +99,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   int i;
   for (i = 0; i < L; ++i) {
     printf("# 2.%u prepare...", i+1);
-    if (prepare) {
+    if (b->prepare) {
       mtperf_start_interval(intervals, p, i, "prepare");
-      sl_proccall(*prepare, sl_glarg(struct benchmark_state*, , &bs));
+      b->prepare(&bs);
       mtperf_finish_interval(intervals, p++);
       pr("ok\n");
     } else {
@@ -148,10 +124,10 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   }
 
   pr("# 4. results...");
-  if (results && output) {
+  if (results && b->output) {
     prnl();
     mtperf_start_interval(intervals, p, -1, "output");
-    sl_proccall(*output, sl_glarg(struct benchmark_state*, , &bs));
+    b->output(&bs);
     mtperf_finish_interval(intervals, p++);
     prnl();
   } else {
@@ -160,9 +136,9 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   }
 
   pr("# 5. teardown...");
-  if (teardown) {
+  if (b->teardown) {
     mtperf_start_interval(intervals, p, -1, "teardown");
-    sl_proccall(*teardown, sl_glarg(struct benchmark_state*, _0, &bs));
+    b->teardown(&bs);
     mtperf_finish_interval(intervals, p++);
     pr("ok\n");
   } else {
@@ -178,4 +154,4 @@ sl_def(run_benchmark, void, sl_glparm(struct benchmark*, b))
   mtperf_report_intervals(intervals, p, report_flags);
   output_string("### end benchmark results\n", 2);
 }
-sl_enddef
+

@@ -38,8 +38,7 @@ struct bdata {
 };
 
 
-sl_def(initialize, void,
-       sl_glparm(struct benchmark_state*, st))
+void initialize(struct benchmark_state* st)
 {
     struct bdata *bdata = (struct bdata*) malloc(sizeof(struct bdata));
 
@@ -165,14 +164,12 @@ sl_def(initialize, void,
     bdata->init = (cell*)cinit;
     bdata->block = block;
 
-    sl_getp(st)->data = bdata;
+    st->data = bdata;
 }            
-sl_enddef
 
-sl_def(prepare, void,
-       sl_glparm(struct benchmark_state*, st))
+void prepare(struct benchmark_state* st)
 {
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+    struct bdata *bdata = (struct bdata*)st->data;
     
     /* copy initial state */
     size_t init_h = bdata->init_h;
@@ -205,12 +202,11 @@ sl_def(prepare, void,
 #endif
         }
 }
-sl_enddef
 
-sl_def(work, void,
-       sl_glparm(struct benchmark_state*, st))
+
+void work(struct benchmark_state* st)
 {
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+    struct bdata *bdata = (struct bdata*)st->data;
     
     cell *space1 = (cell*)bdata->space1;
     cell *space2 = (cell*)bdata->space2;
@@ -232,12 +228,10 @@ sl_def(work, void,
         space2 = t;
     }
 }
-sl_enddef
 
-sl_def(output, void,
-       sl_glparm(struct benchmark_state*, st))
+void output(struct benchmark_state* st)
 {
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+    struct bdata *bdata = (struct bdata*)st->data;
 
     size_t sp_w = bdata->space_w;
     size_t sp_h = bdata->space_h;
@@ -253,24 +247,22 @@ sl_def(output, void,
     /* dump screenshot */
     gfx_dump(0, 1, 0, 0);    
 }
-sl_enddef
 
-sl_def(teardown, void,
-       sl_glparm(struct benchmark_state*, st))
+
+void teardown(struct benchmark_state* st)
 {
 #ifdef DISPLAY_DURING_COMPUTE
   gfx_close();
 #endif
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
 
   free(bdata->space1);
   free(bdata->space2);
   free(bdata->init);
   free(bdata);
 }
-sl_enddef
 
-sl_def(t_main, void)
+int main(void)
 {
   struct benchmark b = {
     "Cellular automaton",
@@ -278,10 +270,10 @@ sl_def(t_main, void)
     "Iterate a generic CA over a 2D torus",
     &initialize, &prepare, &work, &output, &teardown
   };
-  sl_proccall(run_benchmark, sl_glarg(struct benchmark*, , &b));
-
+  run_benchmark(&b);
+  return 0;
 }
-sl_enddef
+
 
 #include "makerule2d.c"
 #include "ca2d.c"

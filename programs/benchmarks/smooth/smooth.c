@@ -109,7 +109,7 @@ struct bdata {
     double *restrict b;
 };
 
-sl_def(initialize, void, sl_glparm(struct benchmark_state*, st))
+void initialize(struct benchmark_state* st)
 {
     struct bdata *bdata = (struct bdata*)malloc(sizeof(struct bdata));
 
@@ -143,15 +143,13 @@ sl_def(initialize, void, sl_glparm(struct benchmark_state*, st))
     for (i = 0; i < data_size; ++i)
         bdata->b[i] = bdata->a[i];
 
-    sl_getp(st)->data = bdata;
+    st->data = bdata;
 }
-sl_enddef
 
-
-sl_def(work, void, sl_glparm(struct benchmark_state*, st))
+void work(struct benchmark_state* st)
 {
-  struct work_lapses * wl = sl_getp(st)->wl;
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct work_lapses * wl = st->wl;
+  struct bdata *bdata = (struct bdata*)st->data;
 
   size_t N = bdata->N, data_size = N * N;
   double *restrict a = bdata->a;
@@ -196,17 +194,15 @@ sl_def(work, void, sl_glparm(struct benchmark_state*, st))
   bdata->b = b;
 #endif
 }
-sl_enddef
 
-sl_def(output, void,        sl_glparm(struct benchmark_state*, st))
+void output(struct benchmark_state* st)
 {
-    struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+    struct bdata *bdata = (struct bdata*)st->data;
     print2d_square(bdata->a, bdata->N);
  
 }   
-sl_enddef
 
-sl_def(t_main, void)
+int main(void)
 {
   struct benchmark b = {
     "Simple image 'smoothing'",
@@ -214,7 +210,7 @@ sl_def(t_main, void)
     "Average the floating point data across a 2D grid",
     &initialize, 0, &work, &output, 0
   };
-  sl_proccall(run_benchmark, sl_glarg(struct benchmark*, , &b));
-
+  run_benchmark(&b);
+  return 0;
 }
-sl_enddef
+

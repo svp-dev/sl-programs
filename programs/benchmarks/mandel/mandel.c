@@ -61,8 +61,7 @@ sl_def(prepare_colors, void,
 }
 sl_enddef
 
-sl_def(initialize, void,
-       sl_glparm(struct benchmark_state*, st))
+void initialize(struct benchmark_state* st)
 {
   struct bdata *bdata = (struct bdata*) malloc(sizeof(struct bdata));
 
@@ -103,7 +102,7 @@ sl_def(initialize, void,
   assert(bdata->N > 0);
 
 #ifndef SKIP_MEM
-  bdata->pixeldata = (struct point*)malloc(sizeof(struct point)*bdata->N);
+  bdata->pixeldata = (struct point*)malloc(sizeof(struct point) * bdata->N);
 #endif
 
 #ifdef MANY_COLORS
@@ -128,10 +127,8 @@ sl_def(initialize, void,
   gfx_init();
   gfx_resize(bdata->xN, bdata->yN);
 
-  sl_getp(st)->data = bdata;
+  st->data = bdata;
 }
-sl_enddef
-
 
 alwaysinline
 void do_display(uint16_t dx, uint16_t dy, uint32_t v)
@@ -353,11 +350,10 @@ sl_enddef
 
 #endif
 
-
-sl_def(work, void, sl_glparm(struct benchmark_state*, st))
+void work(struct benchmark_state* st)
 {
-  struct work_lapses * wl = sl_getp(st)->wl;
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct work_lapses * wl = st->wl;
+  struct bdata *bdata = (struct bdata*)st->data;
 
   start_interval(wl, "compute");
 
@@ -434,22 +430,19 @@ sl_def(work, void, sl_glparm(struct benchmark_state*, st))
 
 #endif
 } 
-sl_enddef
 
-sl_def(output, void,
-       sl_glparm(struct benchmark_state*, st))
+
+void output(struct benchmark_state* st)
 {
   /* dump screenshot */
   gfx_dump(0, 1, 0, 0);
 }
-sl_enddef
 
-sl_def(teardown, void,
-       sl_glparm(struct benchmark_state*, st))
+void teardown(struct benchmark_state* st)
 {
   gfx_close();
 
-  struct bdata *bdata = (struct bdata*)sl_getp(st)->data;
+  struct bdata *bdata = (struct bdata*)st->data;
 #ifndef SKIP_MEM
   free(bdata->pixeldata);
 #endif
@@ -461,9 +454,8 @@ sl_def(teardown, void,
 #endif
   free(bdata);
 }
-sl_enddef
 
-sl_def(t_main, void)
+int main(void)
 {
   struct benchmark b = {
     "Mandelbrot set approximation",
@@ -471,7 +463,6 @@ sl_def(t_main, void)
     "Iterate z_{n-1} = z_n^2 + c over the complex plane",
     &initialize, 0, &work, &output, &teardown
   };
-  sl_proccall(run_benchmark, sl_glarg(struct benchmark*, , &b));
-
+  run_benchmark(&b);
 }
-sl_enddef
+
