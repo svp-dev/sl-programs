@@ -20,7 +20,6 @@ bench_verbose = $(bench_verbose_$(V))
 bench_verbose_ = $(bench_verbose_$(AM_DEFAULT_VERBOSITY))
 bench_verbose_0 = @echo '  BENCH  $@';
 
-
 SUFFIXES += .ilist .blist .tlist
 ILIST_FILES = $(BENCHMARKS:.c=.ilist)
 BLIST_FILES = $(BENCHMARKS:.c=.blist)
@@ -93,9 +92,6 @@ GENDATA_DEF = gen_fdata() { \
 
 SUFFIXES += .out
 
-FAIL_DIR = $(top_builddir)/failures
-CHECK_TARGETS =
-
 DOBENCH_DEF = do_bench() { \
 	  set -e; \
 	  target=$$1; \
@@ -115,19 +111,11 @@ DOBENCH_DEF = do_bench() { \
 	    if test -n "$$dores"; then \
 	      { echo "Exit status: $$ecode"; echo; echo "Error log::"; echo; sed -e 's/^/  /g' <"$$target".err; } >&2; \
 	    fi; \
-	    scode=`expr $$ecode - 128`; \
-	    if ! test x$$scode = x1 \
-	       -o x$$scode = x2 \
-	       -o x$$scode = x15; then \
-	         $(MKDIR_P) $(FAIL_DIR); cp "$$target".err $(FAIL_DIR); cp -r "$$target".work $(FAIL_DIR) || true; \
-	    fi; \
 	    exit $$ecode; \
 	  fi; \
 	  mv -f "$$target".err "$$target" && rm -rf "$$target".work; \
 	}
 
-# benchdata/ARCH/PROG/INPUT/PROFILE.out
-# $(patsubst pattern,replacement,text)
 %.out: \
 	$$(word 3,$$(subst /, ,$$@)).x \
 	benchdata/$$(word 2,$$(subst /, ,$$@))/inputs/$$(word 4,$$(subst /, ,$$@)).fdata
@@ -155,8 +143,24 @@ check-local: $(BENCHMARKS:.c=.x) $(TLIST_FILES)
 	   $(foreach T,$(subst ., ,$(suffix $(wildcard $*.bin.*))), \
 	     $$(for I in `cat $*.tlist`; do \
 	           bn="benchdata/$(T)/$*/$$I/default.out"; \
-	           rm -f "$$bn"; \
 	           echo "$$bn"; \
                 done))
 
+noinst_DATA = $(BENCHMARKS:.c=.x) $(BLIST_FILES)
 
+##
+## Automated benchmarking
+##
+
+BENCH_TARGETS ?= mta mta_n
+BENCH_PROFILES ?= coma128 rbm128
+
+%.bench: %.x \
+	$$(foreach I,$$(shell cat $$*.blist), \
+	  $$(foreach T,$$(subst ., ,$$(suffix $$(wildcard $$*.bin.*))),\
+            benchdata/$$(T)/inputs/$$(I).fdata))
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) \
+	   $(foreach T,$(BENCH_TARGETS), \
+	     $$(for I in `cat $*.blist`; do \
+	           $(foreach P,$(BENCH_PROFILES), echo "benchdata/$(T)/$*/$$I/$(P).out";) \
+                done))

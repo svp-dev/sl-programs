@@ -1,5 +1,13 @@
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
+	Improve the benchmarking makefile.
+
+	* build-aux/benchmarks.mk: Do not use a common "fail"
+	directory. Do provide `.bench' targets which automaticall expand
+	to a `make' command over multiple inputs, target and profiles.
+
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
 	Reduce the complexity of the test suite.
 
 	* benchmarks/ca/lidka.d768800: Do not use for checking, only for
