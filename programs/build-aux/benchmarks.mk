@@ -13,17 +13,21 @@ CLEANFILES = $(BENCHMARKS:.c=.x) $(BENCHMARKS:.c=.bin.*)
 DISTCLEANFILES = 
 BUILT_SOURCES =
 
-###
-### Generating dependency makefiles
-###
-PLIST ?= 1 2 4 8 16 32 64
-BENCH_BINFORMATS ?= seqc ptl_n mta mta_n mta_on mta_s
+data_verbose = $(data_verbose_$(V))
+data_verbose_ = $(data_verbose_$(AM_DEFAULT_VERBOSITY))
+data_verbose_0 = @echo '  DATA   $@';
+bench_verbose = $(bench_verbose_$(V))
+bench_verbose_ = $(bench_verbose_$(AM_DEFAULT_VERBOSITY))
+bench_verbose_0 = @echo '  BENCH  $@';
 
-SUFFIXES += .ilist
+
+SUFFIXES += .ilist .blist .tlist
 ILIST_FILES = $(BENCHMARKS:.c=.ilist)
+BLIST_FILES = $(BENCHMARKS:.c=.blist)
+TLIST_FILES = $(BENCHMARKS:.c=.tlist)
 
 %.ilist: %.c Makefile
-	$(AM_V_at)rm -f $@ $@.tmp1 $@.tmp2 $@.tmp3
+	$(AM_V_at)rm -f $@ $@.tmp1 $@.tmp2 $@.tmp3 
 	$(AM_V_GEN)set -e;							\
 	        ifile=`test -r "$*".inputs || echo "$(srcdir)/"`$*.inputs; \
 		if test -r "$$ifile"; then					\
@@ -42,10 +46,21 @@ ILIST_FILES = $(BENCHMARKS:.c=.ilist)
 	           echo "$$i$$suff"; \
 	        done >$@.tmp2
 	$(AM_V_at)sed -e 's|^$(srcdir)/||g' <$@.tmp2 | sort | uniq >$@.tmp3
-	$(AM_V_at)chmod -w $@.tmp3 && mv -f $@.tmp3 $@ && rm -f $@.tmp1 $@.tmp2
+	$(AM_V_at)mv -f $@.tmp3 $@
+	$(AM_V_at)rm -f $@.tmp1 $@.tmp2
 
-.PRECIOUS: $(ILIST_FILES)
-DISTCLEANFILES += $(ILIST_FILES)
+%.tlist: %.ilist
+	$(AM_V_GEN)grep .check <$< | sed -e 's/.check//g' >$@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
+
+%.blist: %.ilist
+	$(AM_V_GEN)sed -e 's/.check//g' <$< >$@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
+
+.PRECIOUS: $(ILIST_FILES) $(BLIST_FILES) $(TLIST_FILES)
+DISTCLEANFILES += $(ILIST_FILES) $(BLIST_FILES) $(TLIST_FILES)
+
+.SECONDEXPANSION:
 
 ##
 ## Fibre data files
@@ -53,66 +68,48 @@ DISTCLEANFILES += $(ILIST_FILES)
 
 SUFFIXES += .fdata
 
+# Format of data paths: benchdata/ARCH/inputs/DATANAME.fdata
 GENDATA_DEF = gen_fdata() { \
 	  set -e; \
 	  target=$$1; \
-	  binfmt=$$2; \
-	  data=`test -r "$$3" || echo "$(srcdir)/"`$$3; \
-	  rm -f "$$target"; mkdir -p benchdata; \
+	  binfmt=`echo $$1|cut -d/ -f2`; \
+	  dataname=`echo $$1|cut -d/ -f4`; \
+	  dataname=`basename $$dataname .fdata`; \
+	  data=`test -r "$$dataname" || echo "$(srcdir)"`/"$$dataname"; \
+	  rm -f "$$target"; $(MKDIR_P) `dirname "$$target"`; \
 	  TIMEOUT=$${TIMEOUT:-7200} $(TMO) $(SLR) -b $$binfmt -f "$$data" -wf "$$target".tmp -rd /dev/null -wo && \
 	  mv -f "$$target".tmp "$$target"; \
 	}
 
-BUILT_SOURCES += fdatas.mk
-
-fdatas.mk: Makefile $(BENCHMARKS:.c=.ilist)
-	$(AM_V_at)rm -f $@ $@.tmp
-	$(AM_V_GEN)set -e; \
-	   ifiles=`cat $(BENCHMARKS:.c=.ilist)|sort|uniq`; \
-	   for i1 in $$ifiles; do \
-	     i=`echo "$$i1"|sed -e 's/.check$$//g'`; \
-	     ibase=`basename "$$i"`; \
-	     for b in $(BENCH_BINFORMATS); do \
-	       idata=benchdata/$$b-$$ibase.fdata; \
-	       echo "FDATA_FILES += $$idata"; \
-	       echo "$$idata: $$i ; \$$(AM_V_GEN)\$$(GENDATA_DEF); gen_fdata \$$@ $$b \$$^"; \
-	     done; \
-	   done >$@.tmp
-	$(AM_V_at)chmod -w $@.tmp && mv -f $@.tmp $@
-
-FDATA_FILES =
--include fdatas.mk
-
-.PRECIOUS: $(FDATA_FILES)
-.PHONY: fdata fdata-am clean-fdata
-fdata: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) fdata-am
-fdata-am: $(FDATA_FILES)
-clean-fdata:
-	-rm -f benchdata/*.fdata
-
-DISTCLEANFILES += fdatas.mk
+.PRECIOUS: %.fdata
+%.fdata: $$(notdir $$*)
+	$(data_verbose)$(GENDATA_DEF); gen_fdata $@
 
 ##
 ## Benchmarks
 ##
 
-SUFFIXES += .bmk .out
-BMK_FILES = $(BENCHMARKS:.c=.bmk)
+# Format of output files: benchdata/ARCH/PROG/INPUT/PROFILE.out
+
+SUFFIXES += .out
 
 FAIL_DIR = $(top_builddir)/failures
+CHECK_TARGETS =
 
 DOBENCH_DEF = do_bench() { \
 	  set -e; \
 	  target=$$1; \
-	  binfmt=$$2; \
-	  ncores=$$3; \
-	  prog=`basename "$$4" .x`.bin.$$binfmt; \
-	  fdata=$$5; \
-	  dores=`if test $$6 = 1; then echo 1; fi`; \
+	  binfmt=`echo "$$1"|cut -d/ -f2`; \
+	  progbase=`echo "$$1"|cut -d/ -f3`; \
+	  input=`echo "$$1"|cut -d/ -f4`; \
+	  profile=`basename "$$1" .out`; \
+	  prog=$$progbase.bin.$$binfmt; \
+	  fdata=benchdata/$$binfmt/inputs/$$input.fdata; \
+	  dores=`if test $$2 = 1; then echo 1; fi`; \
 	  rm -f "$$target" "$$target".err; \
+	  $(MKDIR_P) `dirname "$$target"`; \
 	  set +e; TIMEOUT=$${TIMEOUT:-10800} $(TMO) $(SLR) "$$prog" -rf "$$fdata" \
-	    L= sep_dump= results=$$dores format=1 -n $$ncores \
+	    L= sep_dump= results=$$dores format=1 -m "$$profile" \
 	    -b "$$binfmt" -t -p "$$target".work >>"$$target".err 2>&1; \
 	  ecode=$$?; set -e; if test $$ecode != 0; then \
 	    if test -n "$$dores"; then \
@@ -122,118 +119,44 @@ DOBENCH_DEF = do_bench() { \
 	    if ! test x$$scode = x1 \
 	       -o x$$scode = x2 \
 	       -o x$$scode = x15; then \
-	         $(MKDIR_P) $(FAIL_DIR); cp -r "$$target".err "$$target".work $(FAIL_DIR); \
+	         $(MKDIR_P) $(FAIL_DIR); cp "$$target".err $(FAIL_DIR); cp -r "$$target".work $(FAIL_DIR) || true; \
 	    fi; \
 	    exit $$ecode; \
 	  fi; \
 	  mv -f "$$target".err "$$target" && rm -rf "$$target".work; \
 	}
 
-BUILT_SOURCES += $(BMK_FILES)
-%.bmk: %.ilist Makefile $(top_srcdir)/build-aux/benchmarks.mk
-	$(AM_V_at)rm -f $@ $@.tmp
-	$(AM_V_GEN)set -e; \
-	   ilist=`cat "$*".ilist`; ilist=`for i in $$ilist; do basename $$i; done`; \
-	   elist=""; \
-	   for b in $(BENCH_BINFORMATS); do \
-	      plist=""; \
-	      eilist=""; \
-	      for ibase1 in $$ilist; do \
-	         ibase=`basename "$$ibase1" .check`; \
-	         docheck=`if test "x$$ibase" != "x$$ibase1"; then echo 1; fi`; \
-	         idata=benchdata/$$b-$$ibase.fdata; \
-	         for p in $(PLIST); do \
-	            pdata=benchdata/$$b-$*-$$ibase.p$$p.out; \
-	            plist+=" $$pdata"; \
-		    echo "$$pdata: $*.x $$idata ; " \
-	                 "\$$(AM_V_GEN)\$$(DOBENCH_DEF); do_bench \$$@ $$b $$p \$$^ 0"; \
-	         done; \
-	         if test -n "$$docheck"; then \
-	            edata=benchdata/$$b-$*-$$ibase.check.out; \
-		    elist+=" $$edata"; \
-	            eilist+=" $$idata"; \
-	            echo "$$edata: $*.x $$idata ; " \
-	                 "\$$(AM_V_GEN)\$$(DOBENCH_DEF); do_bench \$$@ $$b 1 \$$^ 1"; \
-	         fi; \
-	      done; \
-	      echo "CHECK_FDATA_FILES += $$eilist"; \
-	      echo "PDATA_FILES += $$plist"; \
-	      echo ".PHONY: $$b-$*.gen"; \
-	      echo "$$b-$*.gen: $$plist"; \
-	   done >$@.tmp && \
-	   { echo ".PHONY: $*.check"; \
-	     echo "$*.check: $$elist ; " \
-	          "-if ! test \"x\$$^\" = x; then cat \$$^ && rm -f \$$^; fi"; \
-	   } >>$@.tmp
-	$(AM_V_at)chmod -w $@.tmp && mv -f $@.tmp $@
-
-CHECK_FDATA_FILES =
-PDATA_FILES =
--include $(BMK_FILES)
-
-.PRECIOUS: $(PDATA_FILES)
-.PHONY: bench bench-am clean-bench
-bench: $(BUILT_SOURCES)
-	$(MAKE) $(AM_MAKEFLAGS) bench-am
-bench-am: $(PDATA_FILES)
-clean-bench:
-	-rm -f benchdata/*.out
-	-rm -f benchdata/*.err
-	-rm -rf benchdata/*.work
-
-DISTCLEANFILES += $(BMK_FILES)
+# benchdata/ARCH/PROG/INPUT/PROFILE.out
+# $(patsubst pattern,replacement,text)
+%.out: \
+	$$(word 3,$$(subst /, ,$$@)).x \
+	benchdata/$$(word 2,$$(subst /, ,$$@))/inputs/$$(word 4,$$(subst /, ,$$@)).fdata
+	$(AM_V_at)$(MKDIR_P) $(dir $@)
+	$(bench_verbose)$(DOBENCH_DEF); do_bench $@ 0
 
 ###
 ### Global clean rule
 ###
-clean-local: clean-fdata clean-bench
+clean-local:
 	-rm -rf benchdata
 
 ##
 ## Unit testing
 ##
 
-TEST_EXTENSIONS = .bmk
-BMK_LOG_COMPILER = \
-	docheck() { t=`basename "$$1" .bmk`.check; $(MAKE) $(AM_MAKEFLAGS) "$$t" V=1; }; $(SLC_VARS) docheck
-TESTS = $(BENCHMARKS:.c=.bmk)
-check_DATA = $(BENCHMARKS:.c=.x) $(CHECK_FDATA_FILES)
+check-local: $(BENCHMARKS:.c=.x) $(TLIST_FILES)
+	$(MAKE) $(AM_MAKEFLAGS) $(BENCHMARKS:.c=.check)
 
-##
-## Unibench archive generation
-##
-
-.PHONY: ub-archives
-ub-archives: $(BENCHMARKS:.c=.tar)
-
-SUFFIXES += .tar
-BENCHLIB = $(abs_top_srcdir)/benchmarks/lib/benchmark.c \
-           $(abs_top_srcdir)/benchmarks/lib/benchmark.h
-
-.c.tar: $(EXTRA_DIST) $(BUILT_SOURCES) $(BENCHLIB)
-	$(AM_V_at)rm -rf $@ $@.tmp
-	$(AM_V_GEN)b="$<" && \
-	  bn=$$(basename $$b .c) && \
-	  rm -rf "$$bn" && \
-	  $(MKDIR_P) "$$bn" && \
-	  for f in $(EXTRA_DIST) $(BUILT_SOURCES) $(BENCHLIB); do \
-	    case $$f in *.d*[0-9]|*.inputs|*.bmk|*fdatas.mk) continue ;; esac && \
-	    dn=$$(dirname $$(echo $$f|$(SED) -e 's|^'$(abs_top_srcdir).*/'||g')) && \
-	    $(MKDIR_P) $$bn/$$dn && \
-	    cp `test -r $$f || echo $(srcdir)/`$$f $$bn/$$dn/; \
-	  done && \
-	  echo "a.out: $$bn.c benchmark.c; "'$$'"(COMPILER) "'$$'"(FLAGS) -I. -o "'$$'"@ "'$$'"^ -lm" \
-	     >$$bn/Makefile && \
-	  tardir=$$bn && $(am__tar) >$@.tmp && \
-	  rm -rf $$bn
-	$(AM_V_at)chmod -w $@.tmp
-	$(AM_V_at)mv -f $@.tmp $@
-
-##
-## Extra
-##
-if ENABLE_DEMOS
-noinst_DATA = $(BENCHMARKS:.c=.x)
-endif
+%.check: %.x \
+	$$(foreach I,$$(shell cat $$*.tlist), \
+	  $$(foreach T,$$(subst ., ,$$(suffix $$(wildcard $$*.bin.*))),\
+            benchdata/$$(T)/inputs/$$(I).fdata))
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) \
+	   $(foreach T,$(subst ., ,$(suffix $(wildcard $*.bin.*))), \
+	     $$(for I in `cat $*.tlist`; do \
+	           bn="benchdata/$(T)/$*/$$I/default.out"; \
+	           rm -f "$$bn"; \
+	           echo "$$bn"; \
+                done))
 
 

@@ -1,3 +1,11 @@
+2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
+
+	Simplify the benchmarking makefiles.
+
+	* build-aux/benchmarks.mk: At the cost of requiring GNU Make,
+	avoid two passes and flatten all the benchmark rules into one
+	dependency graph.
+
 2012-05-29  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Fix the benchmark Makefile generation.
