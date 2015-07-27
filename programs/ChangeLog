@@ -1,5 +1,21 @@
 2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
 
+	Tweak the programs to ease `make check'.
+
+	* demo/msort.c,
+	* benchmarks/sha/sha1.c,
+	* benchmarks/sha/sha1_alt.c: Ignore test results on platforms that
+	cannot support the concurrency pattern.
+
+	* demo/ca1d_main.c,
+	* demo/sep.c: Allocate the intervals on the heap, to avoid stack
+	overflow on targets with tiny stacks.
+
+	* demo/speed.c: Make the delay configurable. Use 1 second as
+	default during tests.
+
+2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
+
 	Ensure the MGSim demos compile properly.
 
 	* configure.ac: Add the MGSim include directory to the header

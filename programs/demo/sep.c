@@ -96,7 +96,7 @@ int main(int argc, char **argv)
           break;
       }
 
-  struct s_interval ct[2*N*L];
+  struct s_interval *ct = malloc(sizeof(struct s_interval) * 2*N*L);
   int cti = 0;
 
   for (n = 0; n < L; ++n) {
@@ -153,6 +153,8 @@ int main(int argc, char **argv)
 
   printf("\nPerformance report (%d):\n", cti);
   mtperf_report_intervals(ct, cti, REPORT_CSV|CSV_INCLUDE_HEADER|CSV_SEP('\t'));
+
+  free(ct);
 
   return 0;
 }

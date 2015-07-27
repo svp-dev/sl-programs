@@ -15,9 +15,10 @@
 #include <stdio.h>
 #include <svp/perf.h>
 
-// XIGNORE: *:R
+// SLT_RUN: 1
+// XIGNORE: *:D
 
-int main(void)
+int main(int argc, char **argv)
 {
     time_t start_t, expected_t, end_t;
     clock_t start_c, end_c;
@@ -26,7 +27,7 @@ int main(void)
     struct s_interval iv;
 
     start_t = time(0);
-    expected_t = start_t + 15;
+    expected_t = start_t + atoi(argv[1]);
 
     printf("starting at %lu, waiting to %lu...\n",
            (unsigned long)start_t, (unsigned long)expected_t);

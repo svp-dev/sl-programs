@@ -17,6 +17,10 @@
 #include <assert.h>
 #include <stdlib.h>
 
+// MT-SPARC targets fail due to insufficient shareds.
+// XIGNORE: mtsn:R mtsn_n:R
+// MT-Alpha naked may fail due to family exhaustion.
+// XIGNORE: mta_n:R
 #if defined(__slc_variant_seq_naked__) || !defined(__slc_arch_mtsparc__)
 
 #define ROL32(W, bits) (((W) << bits) | ((W) >> (32 - bits)))

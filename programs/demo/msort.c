@@ -21,6 +21,15 @@
 
 #define T unsigned long
 
+// SLT_RUN: -f TEST.d10
+
+// Each platform may produce different timing outputs.
+// XIGNORE: *:D
+// The naked targets will exhaust threads and fail.
+// XIGNORE: mt*_n:R
+// The local stack on the mts targets is really too small.
+
+
 sl_def(printdata,sl__static, sl_glparm(T*, data), sl_shparm(long, tok))
 {
     sl_index(i);

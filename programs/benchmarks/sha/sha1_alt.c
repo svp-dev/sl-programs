@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <svp/delegate.h>
 
+// XIGNORE: mtsn:R mtsn_n:R
 #if defined(__slc_variant_seq_naked__) || !defined(__slc_arch_mtsparc__)
 
 #define ROL32(W, bits) (((W) << bits) | ((W) >> (32 - bits)))

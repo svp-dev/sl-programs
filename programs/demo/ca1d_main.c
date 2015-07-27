@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
     /* iterate */
 
-    struct s_interval iv[iters];
+    struct s_interval *iv = malloc(sizeof(struct s_interval) * iters);
     mtperf_start_interval(iv, 0, 0, "all");
     for (size_t i = 1; i < iters; ++i)
     {
@@ -147,6 +147,8 @@ int main(int argc, char **argv)
 #endif
 
     mtperf_report_intervals(iv, iters, REPORT_FIBRE|REPORT_STREAM(2));
+
+    free(iv);
 
     return 0;
 }
