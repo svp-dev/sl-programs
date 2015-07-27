@@ -1,5 +1,16 @@
 2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
 
+	Automate the generation of libbench to multiple targets.
+
+	* benchmarks/lib/genmake.sh: Generate Makefile rules automatically.
+
+	* benchmarks/lib/Makefile.am: Simplify, use the generated rules.
+	* build-aux/benchmarks.mk: Simplify, use the generated flags.
+
+	* bootstrap: Ensure the rules are generated when bootstrapping.
+
+2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
+
 	Add some demonstration programs.
 
 	* demo/msort.c: Demonstrate a parallel merge sort.

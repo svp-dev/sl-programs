@@ -2,15 +2,11 @@
 ### Build settings
 ###
 include $(top_srcdir)/build-aux/sl.mk
+include $(top_srcdir)/benchmarks/lib/flags.mk
 SLFLAGS = -I$(top_srcdir)/benchmarks/lib -lbench
-SLFLAGS_PTL = -g -L$(top_builddir)/benchmarks/lib/ptl
-SLFLAGS_SEQC = -g -L$(top_builddir)/benchmarks/lib/seqc
-SLFLAGS_MTA = -L$(top_builddir)/benchmarks/lib/mta
-SLFLAGS_MTA_N = -L$(top_builddir)/benchmarks/lib/mta_n
-SLFLAGS_MTA_ON = -L$(top_builddir)/benchmarks/lib/mta_on
-SLFLAGS_MTA_S = -L$(top_builddir)/benchmarks/lib/mta_s
-CLEANFILES = $(BENCHMARKS:.c=.x) $(BENCHMARKS:.c=.bin.*)
-DISTCLEANFILES = 
+SLFLAGS_seqc = -L$(top_builddir)/benchmarks/lib/seqc -lm
+CLEANFILES = $(BENCHMARKS:.c=.x) $(BENCHMARKS:.c=.*.bin)
+DISTCLEANFILES =
 BUILT_SOURCES =
 
 data_verbose = $(data_verbose_$(V))
