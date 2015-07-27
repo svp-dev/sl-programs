@@ -1,5 +1,12 @@
 2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
 
+	Ensure the MGSim demos compile properly.
+
+	* configure.ac: Add the MGSim include directory to the header
+	search path, since the new demos require it (e.g. `uart.c').
+
+2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
+
 	Align the benchmarking framework with the latest SL release.
 
 	* build-aux/benchmarks.mk: The new releases name the produced

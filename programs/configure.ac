@@ -1,6 +1,6 @@
 ## configure.ac: this file is part of the SL demo suite.
-## 
-## Copyright (C) 2009 The SL project
+##
+## Copyright (C) 2009-2015 The SL project
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License
@@ -29,6 +29,7 @@ AC_PROG_RANLIB
 AC_CHECK_PROGS([BASH], [bash sh])
 
 AC_WITH_SLC
+SLC_INCDIR=$SLC_INCDIR:$SLC_BASE/share/mgsim
 AC_SLC_TESTS
 
 AC_ARG_ENABLE([build-programs],
