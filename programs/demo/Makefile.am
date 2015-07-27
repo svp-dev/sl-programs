@@ -1,6 +1,6 @@
 ## Makefile.am: this file is part of the SL toolchain.
-## 
-## Copyright (C) 2009,2010 The SL project
+##
+## Copyright (C) 2009-2015 The SL project
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License
@@ -25,6 +25,9 @@ DEMOS = \
 	pi.c \
 	roman.c \
 	sep.c \
+	msort.c \
+	uart.c \
+	speed.c \
 	tmalloc.c \
 	ca1d_demo.c \
 	ca1d_demo2.c
@@ -35,6 +38,7 @@ include $(top_srcdir)/build-aux/slctests.mk
 
 EXTRA_DIST = $(DEMOS)
 EXTRA_DIST += fibre.c.d1 fibre.c.d2 fibre.c.d3 fibre.c.d4 bitblt.c.d keyblit.c.d
+EXTRA_DIST += msort.c.d10 msort.c.d16
 EXTRA_DIST += ca1d.h ca1d.c ca1d_main.c
 
 if ENABLE_DEMOS

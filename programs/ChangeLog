@@ -1,5 +1,18 @@
 2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
 
+	Add some demonstration programs.
+
+	* demo/msort.c: Demonstrate a parallel merge sort.
+	* demo/uart.c: Demonstrate a MGSim UART driver.
+	* demo/speed.c: Demonstrate the flow of time.
+
+	* demo/msort.c.d10,
+	* demo/msort.c.d16: Example inputs for merge sort.
+
+	* demo/Makefile.am (DEMOS): List the new programs.
+
+2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
+
 	Port the demo and benchmark programs to the latest toolchain.
 
 	* demo/tmalloc.c,
