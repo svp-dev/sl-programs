@@ -131,7 +131,7 @@
   }
 
 #define BEGIN_DESC \
-    int main(void) {        \
+    sl_def(t_main,,) {                          \
     struct benchmark b = {
 
 #define BENCH_TITLE(Title) Title,
@@ -144,7 +144,6 @@
 #define END_DESC							\
     &initialize, &prepare, &work, &output, &teardown };			\
     run_benchmark(&b);                                                  \
-    return 0;                                                           \
-    }
+    } sl_enddef
 
 #endif // ! SL_BENCHMARKS_BLAS_BLASBENCH_H

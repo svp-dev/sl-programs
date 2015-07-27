@@ -233,15 +233,15 @@ def gencode(k):
 
     print >>f, """
 
-int main(void)
+sl_def(t_main,,)
 {
   struct benchmark b = {
      "%s", "%s", "%s", 
      &initialize, &prepare, &work, &output, &teardown
   };
   run_benchmark(&b);
-  return 0;
 }
+sl_enddef
 """ % ("LK%d (%s)" % (idx, k['key']), authors, k['desc'])
     f.close()
 

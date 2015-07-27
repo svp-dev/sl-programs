@@ -1,3 +1,16 @@
+2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
+
+	Fix the benchmarks to fit in the new benchmarking framework.
+
+	* benchmarks/blas/blasbench.h,
+	* benchmarks/ca/benchca.c,
+	* benchmarks/fft/fft-bench.c,
+	* benchmarks/livermore/ll-generate.py,
+	* benchmarks/mandel/mandel.c,
+	* benchmarks/smooth/smooth.c,
+	* demo/msort.c: Ensure that the main function
+	is a thread program.
+
 2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
 
 	Automate the generation of libbench to multiple targets.

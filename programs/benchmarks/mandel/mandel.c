@@ -455,7 +455,7 @@ void teardown(struct benchmark_state* st)
   free(bdata);
 }
 
-int main(void)
+sl_def(t_main,,)
 {
   struct benchmark b = {
     "Mandelbrot set approximation",
@@ -464,6 +464,5 @@ int main(void)
     &initialize, 0, &work, &output, &teardown
   };
   run_benchmark(&b);
-  return 0;
 }
-
+sl_enddef

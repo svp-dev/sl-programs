@@ -198,10 +198,10 @@ void output(struct benchmark_state* st)
 {
     struct bdata *bdata = (struct bdata*)st->data;
     print2d_square(bdata->a, bdata->N);
- 
-}   
 
-int main(void)
+}
+
+sl_def(t_main,,)
 {
   struct benchmark b = {
     "Simple image 'smoothing'",
@@ -210,6 +210,5 @@ int main(void)
     &initialize, 0, &work, &output, 0
   };
   run_benchmark(&b);
-  return 0;
 }
-
+sl_enddef

@@ -140,7 +140,7 @@ sl_def(merge_sort, ,sl_glparm(T*restrict, data), sl_glparm(size_t, N))
 }
 sl_enddef
 
-sl_def(t_main)
+sl_def(t_main,,)
 {
     bool doprint = false;
 

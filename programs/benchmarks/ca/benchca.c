@@ -262,7 +262,7 @@ void teardown(struct benchmark_state* st)
   free(bdata);
 }
 
-int main(void)
+sl_def(t_main,,)
 {
   struct benchmark b = {
     "Cellular automaton",
@@ -271,9 +271,8 @@ int main(void)
     &initialize, &prepare, &work, &output, &teardown
   };
   run_benchmark(&b);
-  return 0;
 }
-
+sl_enddef
 
 #include "makerule2d.c"
 #include "ca2d.c"
