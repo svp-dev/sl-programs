@@ -1,3 +1,38 @@
+2015-07-27  Raphael 'kena' Poss  <r.poss@uva.nl>
+
+	Port the demo and benchmark programs to the latest toolchain.
+
+	* demo/tmalloc.c,
+	* demo/sep.c,
+	* demo/pi.c,
+	* demo/roman.c,
+	* demo/ca1d_demo.c,
+	* demo/ca1d_demo2.c,
+	* demo/ca1d_main.c
+	* demo/fibonacci.c,
+	* benchmarks/sha1/sha1_alt.c,
+	* benchmarks/sha1/sha1.c,
+	* benchmarks/lib/benchmark.c: Read input arguments using
+	argc/argv/getopt.
+
+	* demo/pi.c,
+	* demo/fibre.c: Ignore execution results on MIPSel targets, which
+	do not support FP yet.
+
+	* demo/pi.c: Also output different roundings.
+
+	* benchmarks/sha1/sha1_alt.c,
+	* benchmarks/sha1/sha1.c: Avoid generating code on platforms which
+	do not support that many shared parameters.
+
+	* benchmarks/mandel/mandel.c: Ensure main exits with a return
+	code.
+
+	* benchmarks/smooth/smooth.c: Avoid including obsolete header
+	`slr.h'.
+
+	* demo/checkers.c: Update the copyright notice.
+
 2012-06-03  Raphael 'kena' Poss  <r.c.poss@uva.nl>
 
 	Simplify the FFT benchmarks.

@@ -1,4 +1,4 @@
 #include "ca1d.c"
 #include "ca1d_main.c"
 
-// SLT_RUN: rule=60 width=30 init=1 iters=30 print=1
+// SLT_RUN: -- -d 60 -w 8 -i 1 -i 9 -d

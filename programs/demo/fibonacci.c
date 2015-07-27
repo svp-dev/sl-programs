@@ -1,7 +1,7 @@
 //
 // fibonacci.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <svp/slr.h>
+#include <stdlib.h>
 
 #define INT unsigned long
 
@@ -45,15 +45,13 @@ sl_def(fibo_print, void,
 }
 sl_enddef
 
-slr_decl(slr_var(int, N, "number of fibonacci numbers to generate"));
+// SLT_RUN:  6
+// SLT_RUN:  3
 
-// SLT_RUN:  N=6
-// SLT_RUN:  N=3
-
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
-  assert(slr_len(N) >= 1);
-  unsigned N = slr_get(N)[0] + 1;
+  unsigned N = atoi(argv[1]);
+  assert(N > 1);
 
   INT fibonums[N];
 
@@ -72,5 +70,5 @@ sl_def(t_main, void)
 	    sl_sharg(INT, guard, 0), sl_glarg(INT*, t, fibonums));
   sl_sync();
 
+  return 0;
 }
-sl_enddef

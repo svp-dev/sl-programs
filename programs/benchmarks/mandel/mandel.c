@@ -464,5 +464,6 @@ int main(void)
     &initialize, 0, &work, &output, &teardown
   };
   run_benchmark(&b);
+  return 0;
 }
 

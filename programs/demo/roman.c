@@ -1,7 +1,7 @@
 //
 // roman.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,7 +13,7 @@
 //
 
 #include <svp/testoutput.h>
-#include <svp/slr.h>
+#include <stdlib.h>
 
 static struct roman_table_t {
   long base;
@@ -51,18 +51,15 @@ sl_def(roman, sl__static, sl_glparm(short, x))
 }
 sl_enddef
 
+// SLT_RUN: 42
 
-slr_decl(slr_var(short, N, "number to print"));
-
-// SLT_RUN:  N=42
-
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
-  if (!slr_len(N))
+  if (argc < 2)
       output_string("no number specified!\n", 2);
   else {
-      sl_proccall(roman, sl_glarg(short, x, slr_get(N)[0]));
+      unsigned N = atoi(argv[1]);
+      sl_proccall(roman, sl_glarg(short, x, N));
       output_char('\n', 1);
   }
 }
-sl_enddef

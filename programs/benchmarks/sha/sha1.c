@@ -15,7 +15,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
-#include <svp/slr.h>
+#include <stdlib.h>
+
+#if defined(__slc_variant_seq_naked__) || !defined(__slc_arch_mtsparc__)
 
 #define ROL32(W, bits) (((W) << bits) | ((W) >> (32 - bits)))
 
@@ -298,19 +300,26 @@ sl_enddef
 uint32_t data[16*MAX_CHUNKS];
 uint32_t output[5];
 
-slr_decl(slr_var(unsigned, N, "problem size (512-bit chunks)"));
+// SLT_RUN: 10
 
-// SLT_RUN: N=10
-// XIGNORE: mta_*n:R
-
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
-  unsigned sz = slr_get(N)[0];
+  unsigned sz = atoi(argv[1]);
   assert(sz < MAX_CHUNKS);
   sl_create(,,,,,,, sha1_kernel,
-	    sl_glarg(uint32_t*restrict, gout, output),
-	    sl_glarg(const uint32_t*restrict, ginput, data),
-	    sl_glarg(size_t, len, sz * 16));
+            sl_glarg(uint32_t*restrict, gout, output),
+            sl_glarg(const uint32_t*restrict, ginput, data),
+            sl_glarg(size_t, len, sz * 16));
   sl_sync();
+  return 0;
 }
-sl_enddef
+
+#else
+
+#warning cannot build this program on this target
+int main(void)
+{
+    return 1;
+}
+
+#endif

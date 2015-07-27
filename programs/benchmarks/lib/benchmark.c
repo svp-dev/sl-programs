@@ -1,7 +1,7 @@
 //
 // benchmark.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010,2011 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,26 +15,61 @@
 #include <svp/delegate.h>
 #include <svp/sep.h>
 #include <svp/perf.h>
-#include <svp/slr.h>
 #include <svp/testoutput.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "benchmark.h"
 
 #define pr(S) output_string((S), 1)
 #define prnl() output_char('\n', 1)
 
-slr_decl(slr_var(unsigned, L, "number of outer iterations (default 3)"),
-         slr_var(unsigned, ncores, "(unused)"),
-	 slr_var(int, format, "format for benchmark results (default=0=fibre, 1=raw)"),
-	 slr_var(int, results, "output computation results (default 0=no)"),
-	 slr_var(int, sep_dump, "output initial place configuration (default 0=no)"));
+unsigned L = 3;
+int format = 0;
+int results = 0;
+int sep_dump = 0;
 
 extern sl_place_t __main_place_id;
 union placeinfo __main_placeinfo;
 
-sl_def(do_work, ,
+sl_decl(t_main, void);
+
+int main(int argc, char **argv)
+{
+    int ch;
+    while ((ch = getopt(argc, argv, "n:f:rs")) != -1)
+        switch (ch) {
+        case 'h':
+            output_string("usage: ", 2);
+            output_string(argv[0], 2);
+            output_string(" [OPTIONS...]\n"
+                          "Options:\n"
+                          "  -h    Print this help.\n"
+                          "  -n N  Run N outer iterations.\n"
+                          "  -f N  Output results in format N.\n"
+                          "  -r    Output computation results.\n"
+                          "  -s    Output the initial place configuration.\n", 2);
+            return 0;
+        case 'f':
+            format = atoi(optarg);
+            break;
+        case 'n':
+            L = atoi(optarg);
+            break;
+        case 'r':
+            results = 1;
+            break;
+        case 's':
+            sep_dump = 1;
+            break;
+        }
+
+    sl_proccall(t_main);
+    return 0;
+}
+
+sl_def(do_work, sl__static,
        sl_glparm(size_t, p),
        sl_glparm(int, i),
        sl_glparm(struct benchmark *, b),
@@ -50,15 +85,6 @@ sl_enddef
 void run_benchmark(struct benchmark* b)
 {
   /* configuration from environment */
-  unsigned L = 3;
-  int results = 0;
-  int format = 0;
-  int sep_dump = 0;
-
-  if (slr_len(L)) L = slr_get(L)[0];
-  if (slr_len(results)) results = slr_get(results)[0];
-  if (slr_len(format)) format = slr_get(format)[0];
-  if (slr_len(sep_dump)) sep_dump = slr_get(sep_dump)[0];
 
   /* some introduction */
   if (!b->title) b->title = "(unnamed)";

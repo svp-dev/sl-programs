@@ -1,7 +1,7 @@
 //
 // sep.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,18 +13,15 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <svp/sep.h>
 #include <svp/perf.h>
-#include <svp/slr.h>
 
 #include <svp/testoutput.h>
 
-// SLT_RUN: L=1 nmax=15
+// SLT_RUN: -- -l 1 -n 15 -d
 // XIGNORE: *:D
-
-slr_decl(slr_var(size_t, L, "number of rounds"),
-	 slr_var(size_t, nmax, "max nr policies used"),
-         slr_var(int, dump, "dump status between reqs"));
 
 static
 int lrand(void)
@@ -65,9 +62,8 @@ struct results res[MAXTRIES];
 
 extern void sep_dump_info(struct SEP*);
 
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
-
   struct SEP* restrict sep = root_sep;
   size_t N = sizeof(res) / sizeof(res[0]);
   const size_t nsizes = sizeof(sizes) / sizeof(sizes[0]);
@@ -75,9 +71,30 @@ sl_def(t_main, void)
 
   size_t n;
   size_t L = 4;
-  if (slr_len(L)) L = slr_get(L)[0];
-  if (slr_len(nmax) && slr_get(nmax)[0] < N) N = slr_get(nmax)[0];
-  if (slr_len(dump)) dump = 1;
+  int ch;
+
+  while ((ch = getopt(argc, argv, "hl:n:d")) != -1)
+      switch (ch) {
+      case 'h':
+          output_string("usage: ", 2);
+          output_string(argv[0], 2);
+          output_string(" [OPTIONS...]\n"
+                        "Options:\n"
+                        "  -h    Print this help.\n"
+                        "  -l N  Run max N rounds.\n"
+                        "  -d    Dump state between rounds.\n"
+                        "  -n N  Allocate max N cores.\n", 2);
+          return 0;
+      case 'd':
+          dump = 1;
+          break;
+      case 'l':
+          L = atoi(optarg);
+          break;
+      case 'n':
+          N = atoi(optarg);
+          break;
+      }
 
   struct s_interval ct[2*N*L];
   int cti = 0;
@@ -137,5 +154,5 @@ sl_def(t_main, void)
   printf("\nPerformance report (%d):\n", cti);
   mtperf_report_intervals(ct, cti, REPORT_CSV|CSV_INCLUDE_HEADER|CSV_SEP('\t'));
 
+  return 0;
 }
-sl_enddef

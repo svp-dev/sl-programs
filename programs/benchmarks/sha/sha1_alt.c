@@ -1,7 +1,7 @@
 //
 // sha1_alt.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,8 +15,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>
-#include <svp/slr.h>
+#include <stdlib.h>
 #include <svp/delegate.h>
+
+#if defined(__slc_variant_seq_naked__) || !defined(__slc_arch_mtsparc__)
 
 #define ROL32(W, bits) (((W) << bits) | ((W) >> (32 - bits)))
 
@@ -142,19 +144,27 @@ sl_enddef
 uint32_t data[16*MAX_CHUNKS];
 uint32_t output[5];
 
-slr_decl(slr_var(unsigned, N, "problem size (512-bit chunks)"));
 
-// SLT_RUN: N=10
-// XIGNORE: mta_*n:R
+// SLT_RUN: 10
 
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
-  unsigned sz = slr_get(N)[0];
+  unsigned sz = atoi(argv[1]);
   assert(sz < MAX_CHUNKS);
   sl_create(,,,,,,, sha1_kernel,
-	    sl_glarg(uint32_t*restrict, gout, output),
-	    sl_glarg(const uint32_t*restrict, ginput, data),
-	    sl_glarg(size_t, len, sz * 16));
+            sl_glarg(uint32_t*restrict, gout, output),
+            sl_glarg(const uint32_t*restrict, ginput, data),
+            sl_glarg(size_t, len, sz * 16));
   sl_sync();
+  return 0;
 }
-sl_enddef
+
+#else
+
+#warning cannot build this program on this target
+int main(void)
+{
+    return 1;
+}
+
+#endif

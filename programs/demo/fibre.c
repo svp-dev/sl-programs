@@ -1,7 +1,7 @@
 //
 // fibre.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,9 @@
 // SLT_RUN: -f TEST.d2
 // SLT_RUN: -f TEST.d3
 // SLT_RUN: -f TEST.d4
+
+// 2015-07-25: MIPSel does not support FP yet.
+// XIGNORE: mipsel*:R
 
 sl_def(t_main, void)
 {

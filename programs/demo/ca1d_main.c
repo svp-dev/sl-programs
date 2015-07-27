@@ -1,41 +1,75 @@
-#include <svp/slr.h>
+//
+// ca1d_main.c: this file is part of the SL program suite.
+//
+// Copyright (C) 2009-2015 The SL project.
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 3
+// of the License, or (at your option) any later version.
+//
+// The complete GNU General Public Licence Notice can be found as the
+// `COPYING' file in the root directory.
+//
 #include <svp/testoutput.h>
 #include <svp/perf.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
+#include <string.h>
 #include "ca1d.h"
 #ifdef DRAW
 #include <svp/gfx.h>
 #endif
 
-slr_decl(slr_var(int, rule, "Wolfram code"),
-         slr_var(size_t, width, "space size"),
-         slr_var(bool, init, "initial state"),
-         slr_var(size_t, iters, "number of iterations"),
-         slr_var(bool, print, "print output at each iteration"),
-         slr_var(size_t, block, "blocking factor"));
-
-sl_def(t_main,void)
+int main(int argc, char **argv)
 {
     size_t w = 98;
-    if (slr_len(width)) w = slr_get(width)[0];
+    size_t iters = 99;
+    rule1D rule = 60;
+    bool print = false;
+    size_t block = 0;
+    char *init = 0;
+    int ch;
+
+    while ((ch = getopt(argc, argv, "r:w:i:n:db:h")) != -1)
+        switch (ch) {
+        case 'h':
+            output_string("usage: ", 2);
+            output_string(argv[0], 2);
+            output_string(" [OPTIONS...]\n"
+                          "Options:\n"
+                          "  -h    Print this help.\n"
+                          "  -n N  Run N iterations.\n"
+                          "  -d    Print state between iterations.\n"
+                          "  -b N  Use max N threads per core.\n"
+                          "  -i VV Use VV as initial state.\n"
+                          "  -r N  Use Wolfram rule N.\n"
+                          "  -w N  Set space width to W items.\n", 2);
+            return 0;
+        case 'd':
+            print = true;
+            break;
+        case 'w':
+            w = atoi(optarg);
+            break;
+        case 'n':
+            iters = atoi(optarg);
+            break;
+        case 'r':
+            rule = atoi(optarg);
+            break;
+        case 'b':
+            block = atoi(optarg);
+            break;
+        case 'i':
+            init = optarg;
+            break;
+        }
 
     size_t row_width = w + 2;
-
-    size_t iters = 99;
-    if (slr_len(iters)) iters = slr_get(iters)[0];
-
     ++iters;
-
-    rule1D rule = 60;
-    if (slr_len(rule)) rule = slr_get(rule)[0];
-
-    bool print = false;
-    if (slr_len(print)) print = true;
-
-    size_t block = 0;
-    if (slr_len(block)) block = slr_get(block)[0];
 
 #ifdef DRAW
     gfx_init();
@@ -46,15 +80,18 @@ sl_def(t_main,void)
     cell (*rows)[iters][row_width] = (cell (*)[iters][row_width])calloc(iters, row_width);
 
     /* copy initial state */
-    if (slr_len(init))
-        for (size_t i = 0; i < slr_len(init); ++i)
+    if (init)
+    {
+        size_t init_len = strlen(init);
+        for (size_t i = 0; i < init_len; ++i)
         {
-            bool v = (bool)slr_get(init)[i];
+            bool v = (init[i] == '1');
             (*rows)[0][1+i] = v;
 #ifdef DRAW
             gfx_fb_set(1+i, v ? -1 : 0);
 #endif
         }
+    }
     else
     {
         (*rows)[0][1] = true;
@@ -111,5 +148,5 @@ sl_def(t_main,void)
 
     mtperf_report_intervals(iv, iters, REPORT_FIBRE|REPORT_STREAM(2));
 
+    return 0;
 }
-sl_enddef

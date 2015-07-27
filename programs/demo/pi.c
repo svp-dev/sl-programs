@@ -1,7 +1,7 @@
 //
 // pi.c: this file is part of the SL program suite.
 //
-// Copyright (C) 2009,2010 The SL project.
+// Copyright (C) 2009-2015 The SL project.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -14,18 +14,26 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <svp/slr.h>
+#include <stdlib.h>
 
-slr_decl(slr_var(double, C, "the constant (default pi)"));
+// 2015-07-25: MIPSel does not support FP yet.
+// XIGNORE: mipsel*:R
 
+#if 0
 extern char* __dtoa  (double d, int mode, int ndigits, int *decpt,
 			int *sign, char **rve);
+#endif
 
-sl_def(t_main, void)
+int main(int argc, char **argv)
 {
     double cst = M_PI;
-    if (slr_len(C))
-        cst = slr_get(C)[0];
+    if (argc > 1)
+        cst = strtod(argv[1], 0);
+
+    printf("%g\n", cst);
+    printf("%.0g\n", cst);
+    printf("%.1g\n", cst);
+    printf("%.2g\n", cst);
 
 #if 0
 #ifdef __mt_freestanding__
@@ -55,6 +63,5 @@ sl_def(t_main, void)
 #endif
 #endif
 
-    printf("%lg\n", cst);
+    return 0;
 }
-sl_enddef
