@@ -70,14 +70,15 @@ GENDATA_DEF = gen_fdata() { \
 	  binfmt=`echo $$1|cut -d/ -f2`; \
 	  dataname=`echo $$1|cut -d/ -f4`; \
 	  dataname=`basename $$dataname .fdata`; \
+	  pname=`echo $(word 1,$(BENCHMARKS)) | cut -d. -f1`; \
 	  data=`test -r "$$dataname" || echo "$(srcdir)"`/"$$dataname"; \
 	  rm -f "$$target"; $(MKDIR_P) `dirname "$$target"`; \
-	  TIMEOUT=$${TIMEOUT:-7200} $(TMO) $(SLR) -b $$binfmt -f "$$data" -wf "$$target".tmp -rd /dev/null -wo && \
+	  TIMEOUT=$${TIMEOUT:-7200} $(TMO) $(SLR) $$pname.$$binfmt.bin -f "$$data" -wf "$$target".tmp -wo && \
 	  mv -f "$$target".tmp "$$target"; \
 	}
 
 .PRECIOUS: %.fdata
-%.fdata: $$(notdir $$*)
+%.fdata: $$(notdir $$*) $$(word 1,$$(subst ., ,$$(word 1,$$(BENCHMARKS)))).x
 	$(data_verbose)$(GENDATA_DEF); gen_fdata $@
 
 ##
@@ -95,14 +96,14 @@ DOBENCH_DEF = do_bench() { \
 	  progbase=`echo "$$1"|cut -d/ -f3`; \
 	  input=`echo "$$1"|cut -d/ -f4`; \
 	  profile=`basename "$$1" .out`; \
-	  prog=$$progbase.bin.$$binfmt; \
+	  prog=$$progbase.$$binfmt.bin; \
 	  fdata=benchdata/$$binfmt/inputs/$$input.fdata; \
 	  dores=`if test $$2 = 1; then echo 1; fi`; \
 	  rm -f "$$target" "$$target".err; \
 	  $(MKDIR_P) `dirname "$$target"`; \
 	  set +e; TIMEOUT=$${TIMEOUT:-10800} $(TMO) $(SLR) "$$prog" -rf "$$fdata" \
 	    L= sep_dump= results=$$dores format=1 -m "$$profile" \
-	    -b "$$binfmt" -t -p "$$target".work >>"$$target".err 2>&1; \
+	    -t -p "$$target".work >>"$$target".err 2>&1; \
 	  ecode=$$?; set -e; if test $$ecode != 0; then \
 	    if test -n "$$dores"; then \
 	      { echo "Exit status: $$ecode"; echo; echo "Error log::"; echo; sed -e 's/^/  /g' <"$$target".err; } >&2; \
@@ -133,13 +134,13 @@ check-local: $(BENCHMARKS:.c=.x) $(TLIST_FILES)
 
 %.check: %.x \
 	$$(foreach I,$$(shell cat $$*.tlist), \
-	  $$(foreach T,$$(subst ., ,$$(suffix $$(wildcard $$*.bin.*))),\
-            benchdata/$$(T)/inputs/$$(I).fdata))
+	  $$(foreach T,$$(wildcard $$*.*.bin),\
+            benchdata/$$(word 2, $$(subst ., ,$$(T)))/inputs/$$(I).fdata))
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) \
-	   $(foreach T,$(subst ., ,$(suffix $(wildcard $*.bin.*))), \
+	   $(foreach T,$(wildcard $*.*.bin), \
 	     $$(for I in `cat $*.tlist`; do \
-	           bn="benchdata/$(T)/$*/$$I/default.out"; \
-	           echo "$$bn"; \
+		   bn="benchdata/$(word 2,$(subst ., ,$(T)))/$*/$$I/default.out"; \
+		   echo "$$bn"; \
                 done))
 
 noinst_DATA = $(BENCHMARKS:.c=.x) $(BLIST_FILES)
@@ -158,5 +159,5 @@ BENCH_PROFILES ?= coma128 rbm128
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) \
 	   $(foreach T,$(BENCH_TARGETS), \
 	     $$(for I in `cat $*.blist`; do \
-	           $(foreach P,$(BENCH_PROFILES), echo "benchdata/$(T)/$*/$$I/$(P).out";) \
+		   $(foreach P,$(BENCH_PROFILES), echo "benchdata/$(T)/$*/$$I/$(P).out";) \
                 done))

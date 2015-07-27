@@ -1,5 +1,12 @@
 2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
 
+	Align the benchmarking framework with the latest SL release.
+
+	* build-aux/benchmarks.mk: The new releases name the produced
+	binaries `file.arch.bin', not `.bin.arch'.
+
+2015-07-28  Raphael 'kena' Poss  <r.poss@uva.nl>
+
 	Fix the benchmarks to fit in the new benchmarking framework.
 
 	* benchmarks/blas/blasbench.h,
